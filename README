@@ -1,0 +1,5 @@
+Todo:
+
+Commit initial helper classes.
+Implement error handling on public methods.
+Implement validation on public methods.
