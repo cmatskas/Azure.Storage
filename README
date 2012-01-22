@@ -1,5 +1,13 @@
+These helper classes are designed to help you get up and running 
+quickly when developing against Windows Azure Storage tables, 
+blobs, and queues.
+
+You will need the latest Windows Azure SDK for .NET. You can find
+it here: https://www.windowsazure.com/en-us/develop/downloads/
+
+
+
 Todo:
 
-Implement error handling on public methods.
-Implement validation on public methods.
+Implement azure storage rule validation.
 Implement block blob support.
