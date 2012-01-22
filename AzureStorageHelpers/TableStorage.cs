@@ -21,12 +21,17 @@ namespace AzureStorageHelpers
 		/// <summary>
 		/// Creates a new TableStorage object
 		/// </summary>
-		/// <param name="tableStorageName">The name of the table to be managed</param>
+		/// <param name="tableName">The name of the table to be managed</param>
 		/// <param name="storageConnectionString">The connection string pointing to the storage account (this can be local or hosted in Windows Azure</param>
 		/// <param name="useNagleAlgorithm">PUT HTTP requests that are smaller than 1460 bytes are inefficient with the Nagle algorithm turned on.</param>
-		public TableStorage(string tableStorageName, string storageConnectionString, bool useNagleAlgorithm = false)
+		public TableStorage(string tableName, string storageConnectionString, bool useNagleAlgorithm = false)
 		{
-			tableName = tableStorageName;
+			Validate.TableName(tableName, "tableName");
+			Validate.String(storageConnectionString, "storageConnectionString");
+
+			//http://msdn.microsoft.com/en-us/library/windowsazure/dd179338.aspx
+
+			this.tableName = tableName;
 
 			CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse(storageConnectionString);
 
@@ -44,6 +49,8 @@ namespace AzureStorageHelpers
 		/// <param name="entity">The entity to store in the table</param>
 		public void CreateEntity(T entity)
 		{
+			Validate.Null(entity, "entity");
+
 			tableServiceContext = cloudTableClient.GetDataServiceContext();
 
 			tableServiceContext.AddObject(tableName, entity);
@@ -60,6 +67,8 @@ namespace AzureStorageHelpers
 		/// </param>
 		public void DeleteEntityByPartitionKey(string partitionKey)
 		{
+			Validate.TableParitionKey(partitionKey, "partitionKey");
+
 			tableServiceContext = cloudTableClient.GetDataServiceContext();
 
 			var results = from g in tableServiceContext.CreateQuery<T>(tableName)
@@ -82,6 +91,8 @@ namespace AzureStorageHelpers
 		/// </param>
 		public void DeleteEntityByRowKey(string rowKey)
 		{
+			Validate.TableRowKey(rowKey, "rowKey");
+
 			tableServiceContext = cloudTableClient.GetDataServiceContext();
 
 			var results = from g in tableServiceContext.CreateQuery<T>(tableName)
@@ -107,6 +118,9 @@ namespace AzureStorageHelpers
 		/// </param>
 		public void DeleteEntityByPartitionKeyAndRowKey(string partitionKey, string rowKey)
 		{
+			Validate.TableParitionKey(partitionKey, "partitionKey");
+			Validate.TableRowKey(rowKey, "rowKey");
+
 			tableServiceContext = cloudTableClient.GetDataServiceContext();
 
 			var results = from g in tableServiceContext.CreateQuery<T>(tableName)
@@ -129,6 +143,8 @@ namespace AzureStorageHelpers
 		/// </param>
 		public T GetEntityByPartitionKey(string partitionKey)
 		{
+			Validate.TableParitionKey(partitionKey, "partitionKey");
+
 			tableServiceContext = cloudTableClient.GetDataServiceContext();
 
 			var results = from g in tableServiceContext.CreateQuery<T>(tableName)
@@ -148,6 +164,8 @@ namespace AzureStorageHelpers
 		/// </param>
 		public T GetEntityByRowKey(string rowKey)
 		{
+			Validate.TableRowKey(rowKey, "rowKey");
+
 			tableServiceContext = cloudTableClient.GetDataServiceContext();
 
 			var results = from g in tableServiceContext.CreateQuery<T>(tableName)
@@ -170,6 +188,9 @@ namespace AzureStorageHelpers
 		/// </param>
 		public T GetEntityByPartitionKeyAndRowKey(string partitionKey, string rowKey)
 		{
+			Validate.TableParitionKey(partitionKey, "partitionKey");
+			Validate.TableRowKey(rowKey, "rowKey");
+
 			tableServiceContext = cloudTableClient.GetDataServiceContext();
 
 			var results = from g in tableServiceContext.CreateQuery<T>(tableName)
@@ -200,6 +221,8 @@ namespace AzureStorageHelpers
 		/// </param>
 		public IEnumerable<T> GetEntitiesByPartitionKey(string partitionKey)
 		{
+			Validate.TableParitionKey(partitionKey, "partitionKey");
+
 			tableServiceContext = cloudTableClient.GetDataServiceContext();
 
 			var results = from g in tableServiceContext.CreateQuery<T>(tableName)
@@ -217,6 +240,8 @@ namespace AzureStorageHelpers
 		/// </param>
 		public IEnumerable<T> GetEntitiesByRowKey(string rowKey)
 		{
+			Validate.TableRowKey(rowKey, "rowKey");
+
 			tableServiceContext = cloudTableClient.GetDataServiceContext();
 
 			var results = from g in tableServiceContext.CreateQuery<T>(tableName)
@@ -232,6 +257,8 @@ namespace AzureStorageHelpers
 		/// <param name="account">The cloud storage account to disable nagle</param>
 		private void DisableNagleOnEndpoint(CloudStorageAccount account)
 		{
+			Validate.Null(account, "account");
+
 			var tableServicePoint = ServicePointManager.FindServicePoint(account.TableEndpoint);
 			tableServicePoint.UseNagleAlgorithm = false;
 		}

@@ -14,23 +14,28 @@ namespace AzureStorageHelpers
 	/// </summary>
 	public class BlobStorage
 	{
-		private string blobName;
+		private string blobContainerName;
 		private CloudBlobClient cloudBlobClient;
 
 		/// <summary>
 		/// Creates a new BlobStorage object
 		/// </summary>
-		/// <param name="blobStorageName">The name of the blob to be managed</param>
+		/// <param name="blobContainerName">The name of the blob to be managed</param>
 		/// <param name="storageConnectionString">The connection string pointing to the storage account (this can be local or hosted in Windows Azure</param>
-		public BlobStorage(string blobStorageName, string storageConnectionString)
+		public BlobStorage(string blobContainerName, string storageConnectionString)
 		{
-			blobName = blobStorageName;
+			Validate.BlobContainerName(blobContainerName, "blobContainerName");
+			Validate.String(storageConnectionString, "storageConnectionString");
+
+			//http://msdn.microsoft.com/en-us/library/windowsazure/dd135715.aspx
+
+			this.blobContainerName = blobContainerName;
 
 			CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse(storageConnectionString);
 
 			cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
 
-			CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(blobName);
+			CloudBlobContainer cloudBlobContainer = cloudBlobClient.GetContainerReference(blobContainerName);
 			cloudBlobContainer.CreateIfNotExist();
 
 			var permissions = cloudBlobContainer.GetPermissions();
@@ -47,7 +52,11 @@ namespace AzureStorageHelpers
 		/// <returns>The URI to the created block blob</returns>
 		public string CreateBlockBlob(string fileName, string fileContentType, Stream fileContent)
 		{
-			CloudBlockBlob cloudBlockBlob = cloudBlobClient.GetBlockBlobReference(blobName + "/" + fileName);
+			Validate.BlobName(fileName, "fileName");
+			Validate.String(fileContentType, "fileContentType");
+			Validate.Null(fileContent, "fileContent");
+
+			CloudBlockBlob cloudBlockBlob = cloudBlobClient.GetBlockBlobReference(blobContainerName + "/" + fileName);
 			cloudBlockBlob.Properties.ContentType = fileContentType;
 			cloudBlockBlob.UploadFromStream(fileContent);
 
@@ -63,7 +72,11 @@ namespace AzureStorageHelpers
 		/// <returns>The URI to the created block blob</returns>
 		public string CreateBlockBlob(string fileName, string fileContentType, byte[] fileContent)
 		{
-			CloudBlockBlob cloudBlockBlob = cloudBlobClient.GetBlockBlobReference(blobName + "/" + fileName);
+			Validate.BlobName(fileName, "fileName");
+			Validate.String(fileContentType, "fileContentType");
+			Validate.Null(fileContent, "fileContent");
+
+			CloudBlockBlob cloudBlockBlob = cloudBlobClient.GetBlockBlobReference(blobContainerName + "/" + fileName);
 			cloudBlockBlob.Properties.ContentType = fileContentType;
 			cloudBlockBlob.UploadByteArray(fileContent);
 
@@ -78,7 +91,10 @@ namespace AzureStorageHelpers
 		/// <returns>A reference to the block blob so data can be written to externally</returns>
 		public CloudBlockBlob CreateBlockBlob(string fileName, string fileContentType)
 		{
-			CloudBlockBlob cloudBlockBlob = cloudBlobClient.GetBlockBlobReference(blobName + "/" + fileName);
+			Validate.BlobName(fileName, "fileName");
+			Validate.String(fileContentType, "fileContentType");
+
+			CloudBlockBlob cloudBlockBlob = cloudBlobClient.GetBlockBlobReference(blobContainerName + "/" + fileName);
 			cloudBlockBlob.Properties.ContentType = fileContentType;
 
 			return cloudBlockBlob;
@@ -91,8 +107,7 @@ namespace AzureStorageHelpers
 		/// <returns>A reference to the block blob</returns>
 		public CloudBlockBlob GetBlockBlob(string uniqueBlobName)
 		{
-			if (uniqueBlobName == null || uniqueBlobName.Length <= 0)
-				return null;
+			Validate.BlobName(uniqueBlobName, "uniqueBlobName");
 
 			return cloudBlobClient.GetBlockBlobReference(uniqueBlobName);
 		}
@@ -103,8 +118,7 @@ namespace AzureStorageHelpers
 		/// <param name="uniqueBlobName">The unique block blob identifier</param>
 		public void DeleteBlockBlob(string uniqueBlobName)
 		{
-			if (uniqueBlobName == null || uniqueBlobName.Length <= 0)
-				return;
+			Validate.BlobName(uniqueBlobName, "uniqueBlobName");
 
 			CloudBlockBlob cloudBlockBlob = cloudBlobClient.GetBlockBlobReference(uniqueBlobName);
 			if (cloudBlockBlob != null)

@@ -19,15 +19,20 @@ namespace AzureStorageHelpers
 		/// <summary>
 		/// 
 		/// </summary>
-		/// <param name="queueStorageName">The name of the queue to be managed</param>
+		/// <param name="queueName">The name of the queue to be managed</param>
 		/// <param name="storageConnectionString">The connection string pointing to the storage account (this can be local or hosted in Windows Azure</param>
 		/// <param name="useNagleAlgorithm">PUT HTTP requests that are smaller than 1460 bytes are inefficient with the Nagle algorithm turned on.</param>
-		public QueueStorage(string queueStorageName, string storageConnectionString, bool useNagleAlgorithm = false)
+		public QueueStorage(string queueName, string storageConnectionString, bool useNagleAlgorithm = false)
 		{
+			Validate.QueueName(queueName, "queueName");
+			Validate.String(storageConnectionString, "storageConnectionString");
+
+			//http://msdn.microsoft.com/en-us/library/windowsazure/dd179349.aspx
+
 			CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse(storageConnectionString);
 
 			CloudQueueClient cloudQueueClient = cloudStorageAccount.CreateCloudQueueClient();
-			cloudQueue = cloudQueueClient.GetQueueReference(queueStorageName);
+			cloudQueue = cloudQueueClient.GetQueueReference(queueName);
 			cloudQueue.CreateIfNotExist();
 
 			if (!useNagleAlgorithm)
@@ -40,6 +45,8 @@ namespace AzureStorageHelpers
 		/// <param name="content">The content to add to the queue message</param>
 		public void EnQueue(byte[] content)
 		{
+			Validate.Null(content, "content");
+
 			CloudQueueMessage cloudQueueMessage = new CloudQueueMessage(content);
 
 			cloudQueue.AddMessage(cloudQueueMessage);
@@ -51,6 +58,8 @@ namespace AzureStorageHelpers
 		/// <param name="content">The content to add to the queue message</param>
 		public void EnQueue(string content)
 		{
+			Validate.String(content, "content");
+
 			CloudQueueMessage cloudQueueMessage = new CloudQueueMessage(content);
 
 			cloudQueue.AddMessage(cloudQueueMessage);
@@ -71,6 +80,8 @@ namespace AzureStorageHelpers
 		/// <param name="cloudQueueMessage">The queue message to delete</param>
 		public void DeleteMessage(CloudQueueMessage cloudQueueMessage)
 		{
+			Validate.Null(cloudQueueMessage, "cloudQueueMessage");
+
 			cloudQueue.DeleteMessage(cloudQueueMessage);
 		}
 
@@ -80,6 +91,8 @@ namespace AzureStorageHelpers
 		/// <param name="account">The cloud storage account to disable nagle</param>
 		private void DisableNagleOnEndpoint(CloudStorageAccount account)
 		{
+			Validate.Null(account, "account");
+
 			var queueServicePoint = ServicePointManager.FindServicePoint(account.QueueEndpoint);
 			queueServicePoint.UseNagleAlgorithm = false;
 		}
