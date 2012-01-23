@@ -67,7 +67,7 @@ namespace AzureStorageHelpers
 		/// </param>
 		public void DeleteEntityByPartitionKey(string partitionKey)
 		{
-			Validate.TableParitionKey(partitionKey, "partitionKey");
+			Validate.TablePropertyValue(partitionKey, "partitionKey");
 
 			tableServiceContext = cloudTableClient.GetDataServiceContext();
 
@@ -91,7 +91,7 @@ namespace AzureStorageHelpers
 		/// </param>
 		public void DeleteEntityByRowKey(string rowKey)
 		{
-			Validate.TableRowKey(rowKey, "rowKey");
+			Validate.TablePropertyValue(rowKey, "rowKey");
 
 			tableServiceContext = cloudTableClient.GetDataServiceContext();
 
@@ -118,8 +118,8 @@ namespace AzureStorageHelpers
 		/// </param>
 		public void DeleteEntityByPartitionKeyAndRowKey(string partitionKey, string rowKey)
 		{
-			Validate.TableParitionKey(partitionKey, "partitionKey");
-			Validate.TableRowKey(rowKey, "rowKey");
+			Validate.TablePropertyValue(partitionKey, "partitionKey");
+			Validate.TablePropertyValue(rowKey, "rowKey");
 
 			tableServiceContext = cloudTableClient.GetDataServiceContext();
 
@@ -143,7 +143,7 @@ namespace AzureStorageHelpers
 		/// </param>
 		public T GetEntityByPartitionKey(string partitionKey)
 		{
-			Validate.TableParitionKey(partitionKey, "partitionKey");
+			Validate.TablePropertyValue(partitionKey, "partitionKey");
 
 			tableServiceContext = cloudTableClient.GetDataServiceContext();
 
@@ -164,7 +164,7 @@ namespace AzureStorageHelpers
 		/// </param>
 		public T GetEntityByRowKey(string rowKey)
 		{
-			Validate.TableRowKey(rowKey, "rowKey");
+			Validate.TablePropertyValue(rowKey, "rowKey");
 
 			tableServiceContext = cloudTableClient.GetDataServiceContext();
 
@@ -188,8 +188,8 @@ namespace AzureStorageHelpers
 		/// </param>
 		public T GetEntityByPartitionKeyAndRowKey(string partitionKey, string rowKey)
 		{
-			Validate.TableParitionKey(partitionKey, "partitionKey");
-			Validate.TableRowKey(rowKey, "rowKey");
+			Validate.TablePropertyValue(partitionKey, "partitionKey");
+			Validate.TablePropertyValue(rowKey, "rowKey");
 
 			tableServiceContext = cloudTableClient.GetDataServiceContext();
 
@@ -221,7 +221,7 @@ namespace AzureStorageHelpers
 		/// </param>
 		public IEnumerable<T> GetEntitiesByPartitionKey(string partitionKey)
 		{
-			Validate.TableParitionKey(partitionKey, "partitionKey");
+			Validate.TablePropertyValue(partitionKey, "partitionKey");
 
 			tableServiceContext = cloudTableClient.GetDataServiceContext();
 
@@ -240,7 +240,7 @@ namespace AzureStorageHelpers
 		/// </param>
 		public IEnumerable<T> GetEntitiesByRowKey(string rowKey)
 		{
-			Validate.TableRowKey(rowKey, "rowKey");
+			Validate.TablePropertyValue(rowKey, "rowKey");
 
 			tableServiceContext = cloudTableClient.GetDataServiceContext();
 
