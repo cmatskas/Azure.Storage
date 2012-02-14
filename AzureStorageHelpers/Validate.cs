@@ -6,6 +6,9 @@ using System.Text.RegularExpressions;
 
 namespace AzureStorageHelpers
 {
+	/// <summary>
+	/// Validation class
+	/// </summary>
 	class Validate
 	{
 		public static void Null(object paramValue, string paramName)
