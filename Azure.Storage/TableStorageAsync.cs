@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Azure.Storage.Interfaces;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.RetryPolicies;
@@ -11,7 +12,7 @@ namespace Azure.Storage
 	/// <summary>
 	/// Simple helper class for Windows Azure storage tables
 	/// </summary>
-    public class TableStorage<T> : ITableStorage<T> where T : TableEntity, new()
+    public class TableStorageAsync<T> : ITableStorageAsync<T> where T : TableEntity, new()
 	{
 	    private readonly CloudTable cloudTable;
 
@@ -20,7 +21,7 @@ namespace Azure.Storage
 		/// </summary>
 		/// <param name="tableName">The name of the table to be managed</param>
 		/// <param name="storageConnectionString">The connection string pointing to the storage account (this can be local or hosted in Windows Azure</param>
-		public TableStorage(string tableName, string storageConnectionString)
+		public TableStorageAsync(string tableName, string storageConnectionString)
 		{
 			Validate.TableName(tableName, "tableName");
 			Validate.String(storageConnectionString, "storageConnectionString");
@@ -43,18 +44,18 @@ namespace Azure.Storage
 		/// Creates a new entity in the table
 		/// </summary>
 		/// <param name="entity">The entity to store in the table</param>
-		public void CreateEntity(T entity)
+		public async Task CreateEntityAsync(T entity)
 		{
 			Validate.Null(entity, "entity");
 		    var insertOperation = TableOperation.Insert(entity);
-		    cloudTable.Execute(insertOperation);
+		    await cloudTable.ExecuteAsync(insertOperation);
 		}
 
         /// <summary>
         /// Creates new entities in the table using batching
         /// </summary>
         /// <param name="entities">The entities to store in the table</param>
-	    public void CreateEntities(IEnumerable<T> entities)
+	    public async Task CreateEntitiesAsync(IEnumerable<T> entities)
         {
             Validate.Null(entities, "entities");
             var batchOperation = new TableBatchOperation();
@@ -64,7 +65,7 @@ namespace Azure.Storage
                batchOperation.Insert(entity); 
             }
 
-            cloudTable.ExecuteBatch(batchOperation);
+            await cloudTable.ExecuteBatchAsync(batchOperation);
         }
 
         /// <summary>
@@ -72,11 +73,11 @@ namespace Azure.Storage
         /// to the existing one
         /// </summary>
         /// <param name="entity"></param>
-	    public void InsertOrUpdate(T entity)
+	    public async Task InsertOrUpdateAsync(T entity)
 	    {
             Validate.Null(entity, "entity");
 	        var insertOrUpdateOperation = TableOperation.InsertOrMerge(entity);
-	        cloudTable.Execute(insertOrUpdateOperation);
+	        await cloudTable.ExecuteAsync(insertOrUpdateOperation);
 	    }
 
 		/// <summary>
@@ -87,7 +88,7 @@ namespace Azure.Storage
 		/// Note that a partition key can return more than one entity. 
 		/// If more than one are returned, the first one is deleted.
 		/// </param>
-		public void DeleteEntitiesByPartitionKey(string partitionKey)
+		public async Task DeleteEntitiesByPartitionKeyAsync(string partitionKey)
 		{
 			Validate.TablePropertyValue(partitionKey, "partitionKey");
 
@@ -98,7 +99,7 @@ namespace Azure.Storage
                         QueryComparisons.Equal,
 		                partitionKey));
 
-		    var results = cloudTable.ExecuteQuery(query);
+		    var results = await cloudTable.ExecuteQueryAsync(query);
 		    var batchOperation = new TableBatchOperation();
 		    var counter = 0;
 		    foreach (var entity in results)
@@ -110,7 +111,7 @@ namespace Azure.Storage
                 //when we reach 100, we commit and clear the operation
                 if (counter == 100)
                 {
-                    cloudTable.ExecuteBatch(batchOperation);
+                    await cloudTable.ExecuteBatchAsync(batchOperation);
                     batchOperation = new TableBatchOperation();
                     counter = 0;
                 }
@@ -125,7 +126,7 @@ namespace Azure.Storage
         /// Note that a row key can return more than one entity. 
         /// If more than one are returned, the first one is deleted.
         /// </param>
-        public void DeleteEntitiesByRowKey(string rowKey)
+        public async Task DeleteEntitiesByRowKeyAsync(string rowKey)
         {
             Validate.TablePropertyValue(rowKey, "rowKey");
 
@@ -136,7 +137,7 @@ namespace Azure.Storage
                         QueryComparisons.Equal,
                         rowKey));
 
-            var results = cloudTable.ExecuteQuery(query);
+            var results = await cloudTable.ExecuteQueryAsync(query);
             var batchOperation = new TableBatchOperation();
             var counter = 0;
             foreach (var entity in results)
@@ -148,7 +149,7 @@ namespace Azure.Storage
                 //when we reach 100, we commit and clear the operation
                 if (counter == 100)
                 {
-                    cloudTable.ExecuteBatch(batchOperation);
+                    await cloudTable.ExecuteBatchAsync(batchOperation);
                     batchOperation = new TableBatchOperation();
                     counter = 0;
                 }
@@ -160,19 +161,19 @@ namespace Azure.Storage
 	    /// </summary>
 	    /// <param name="partitionKey">The partitionKey of the entity</param>
 	    /// <param name="rowKey">The row key of the entity to be deleted</param>
-	    public void DeleteEntity(string partitionKey, string rowKey)
+	    public async Task DeleteEntityAsync(string partitionKey, string rowKey)
 		{
             Validate.TablePropertyValue(rowKey, "rowKey");
             Validate.TablePropertyValue(partitionKey, "partitionKey");
 
             var retrieveOperation = TableOperation.Retrieve<T>(partitionKey, rowKey);
-            var retrievedResult = cloudTable.Execute(retrieveOperation);
+            var retrievedResult = await cloudTable.ExecuteAsync(retrieveOperation);
 
             var entityToDelete = retrievedResult.Result as T;
 	        if (entityToDelete != null)
 	        {
                 var deleteOperation = TableOperation.Delete(entityToDelete);
-                cloudTable.Execute(deleteOperation);
+                await cloudTable.ExecuteAsync(deleteOperation);
 	        }
 		}
 
@@ -182,7 +183,7 @@ namespace Azure.Storage
 		/// <param name="partitionKey">
 		/// The partition key of the entity to be returned.
 		/// </param>
-		public IEnumerable<T> GetEntitiesByPartitionKey(string partitionKey)
+		public async Task<IEnumerable<T>> GetEntitiesByPartitionKeyAsync(string partitionKey)
 		{
             Validate.TablePropertyValue(partitionKey, "partitionKey");
 
@@ -193,7 +194,7 @@ namespace Azure.Storage
                        QueryComparisons.Equal,
                        partitionKey));
 
-            return cloudTable.ExecuteQuery(query).AsEnumerable();
+            return await cloudTable.ExecuteQueryAsync(query);
 		}
 
 		/// <summary>
@@ -202,7 +203,7 @@ namespace Azure.Storage
 		/// <param name="rowKey">
 		/// The row key of the entities to be returned.
 		/// </param>
-        public IEnumerable<T> GetEntitiesByRowKey(string rowKey)
+        public async Task<IEnumerable<T>> GetEntitiesByRowKeyAsync(string rowKey)
 		{
 			Validate.TablePropertyValue(rowKey, "rowKey");
 
@@ -213,7 +214,7 @@ namespace Azure.Storage
                        QueryComparisons.Equal,
                        rowKey));
 
-            return cloudTable.ExecuteQuery(query).AsEnumerable();
+            return await cloudTable.ExecuteQueryAsync(query);
 		}
 
 		/// <summary>
@@ -227,11 +228,11 @@ namespace Azure.Storage
 		/// The row key of the entity to be returned.
 		/// The partition key and row key will always return a single entity.
 		/// </param>
-		public T GetEntityByPartitionKeyAndRowKey(string partitionKey, string rowKey)
+		public async Task<T> GetEntityByPartitionKeyAndRowKeyAsync(string partitionKey, string rowKey)
 		{
             var retrieveOperation = TableOperation.Retrieve<T>(partitionKey, rowKey);
 
-            var retrievedResult = cloudTable.Execute(retrieveOperation);
+            var retrievedResult = await cloudTable.ExecuteAsync(retrieveOperation);
 
             return retrievedResult.Result as T;
 		}

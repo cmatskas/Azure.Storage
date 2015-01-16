@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Azure.Storage.Interfaces;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -10,44 +11,39 @@ namespace Azure.Storage
 	/// <summary>
 	/// Simple helper class for Windows Azure storage blobs
 	/// </summary>
-    public class BlobStorage : IBlobStorage
+    public class BlobStorageAsync : IBlobStorageAsync
 	{
 		private readonly CloudBlobContainer cloudBlobContainer;
 
-	    /// <summary>
-	    /// Creates a new BlobStorage object
-	    /// </summary>
-	    /// <param name="blobContainerName">The name of the blob to be managed</param>
-	    /// <param name="storageConnectionString">The connection string pointing to the storage account (this can be local or hosted in Windows Azure</param>
-	    public BlobStorage(string blobContainerName, string storageConnectionString, bool isPublic = true)
-	    {
-	        Validate.BlobContainerName(blobContainerName, "blobContainerName");
-	        Validate.String(storageConnectionString, "storageConnectionString");
+		/// <summary>
+		/// Creates a new BlobStorage object
+		/// </summary>
+		/// <param name="blobContainerName">The name of the blob to be managed</param>
+		/// <param name="storageConnectionString">The connection string pointing to the storage account (this can be local or hosted in Windows Azure</param>
+		public BlobStorageAsync(string blobContainerName, string storageConnectionString)
+		{
+			Validate.BlobContainerName(blobContainerName, "blobContainerName");
+			Validate.String(storageConnectionString, "storageConnectionString");
 
-	        var cloudStorageAccount = CloudStorageAccount.Parse(storageConnectionString);
-	        var cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
+			var cloudStorageAccount = CloudStorageAccount.Parse(storageConnectionString);
+			var cloudBlobClient = cloudStorageAccount.CreateCloudBlobClient();
 
-	        cloudBlobContainer = cloudBlobClient.GetContainerReference(blobContainerName);
-	        cloudBlobContainer.CreateIfNotExists();
+			cloudBlobContainer = cloudBlobClient.GetContainerReference(blobContainerName);
+			cloudBlobContainer.CreateIfNotExists();
 
-	        if (!isPublic)
-	        {
-	            return;
-	        }
+			var permissions = cloudBlobContainer.GetPermissions();
+			permissions.PublicAccess = BlobContainerPublicAccessType.Container;
+			cloudBlobContainer.SetPermissions(permissions);
+		}
 
-            var permission = cloudBlobContainer.GetPermissions();
-	        permission.PublicAccess = BlobContainerPublicAccessType.Container;
-	        cloudBlobContainer.SetPermissions(permission);
-	    }
-
-	    /// <summary>
+		/// <summary>
 		/// Creates a new block blob and populates it from a stream
 		/// </summary>
 		/// <param name="blobId">The blobId for the block blob</param>
 		/// <param name="contentType">The content type for the block blob</param>
 		/// <param name="data">The data to store in the block blob</param>
 		/// <returns>The URI to the created block blob</returns>
-		public string CreateBlockBlob(string blobId, string contentType, Stream data)
+		public async Task<string> CreateBlockBlobAsync(string blobId, string contentType, Stream data)
 		{
 			Validate.BlobName(blobId, "blobId");
 			Validate.String(contentType, "contentType");
@@ -55,7 +51,7 @@ namespace Azure.Storage
 
 			var cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(blobId);
 			cloudBlockBlob.Properties.ContentType = contentType;
-			cloudBlockBlob.UploadFromStream(data);
+			await cloudBlockBlob.UploadFromStreamAsync(data);
 
 			return cloudBlockBlob.Uri.ToString();
 		}
@@ -67,7 +63,7 @@ namespace Azure.Storage
 		/// <param name="contentType">The content type for the block blob</param>
 		/// <param name="data">The data to store in the block blob</param>
 		/// <returns>The URI to the created block blob</returns>
-		public string CreateBlockBlob(string blobId, string contentType, byte[] data)
+		public async Task<string> CreateBlockBlobAsync(string blobId, string contentType, byte[] data)
 		{
 			Validate.BlobName(blobId, "blobId");
 			Validate.String(contentType, "contentType");
@@ -75,7 +71,7 @@ namespace Azure.Storage
 
             var cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(blobId);
 			cloudBlockBlob.Properties.ContentType = contentType;
-			cloudBlockBlob.UploadFromByteArray(data, 0, data.Length);
+			await cloudBlockBlob.UploadFromByteArrayAsync(data, 0, data.Length);
 
 			return cloudBlockBlob.Uri.ToString();
 		}
@@ -87,7 +83,7 @@ namespace Azure.Storage
         /// <param name="contentType">The content type for the block blob</param>
         /// <param name="data">The data to store in the block blob</param>
         /// <returns>The URI to the created block blob</returns>
-        public string CreateBlockBlob(string blobId, string contentType, string data)
+        public async Task<string> CreateBlockBlobAsync(string blobId, string contentType, string data)
         {
             Validate.BlobName(blobId, "blobId");
             Validate.String(contentType, "contentType");
@@ -95,7 +91,7 @@ namespace Azure.Storage
 
             var cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(blobId);
             cloudBlockBlob.Properties.ContentType = contentType;
-            cloudBlockBlob.UploadText(data);
+            await cloudBlockBlob.UploadTextAsync(data);
 
             return cloudBlockBlob.Uri.ToString();
         }
@@ -106,24 +102,24 @@ namespace Azure.Storage
 	    /// <param name="blobId">The blobId for the block blob</param>
 	    /// <param name="filePath"></param>
 	    /// <returns>The URI to the created block blob</returns>
-	    public string CreateBlockBlob(string blobId, string filePath)
+	    public async Task<string> CreateBlockBlobAsync(string blobId, string filePath)
 	    {
             Validate.BlobName(blobId, "blobId");
             Validate.String(filePath, "contentType");
 
             var cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(blobId);
             const FileMode fileMode = FileMode.OpenOrCreate;
-            cloudBlockBlob.UploadFromFile(filePath, fileMode);
+            await cloudBlockBlob.UploadFromFileAsync(filePath, fileMode);
 
             return cloudBlockBlob.Uri.ToString();
 	    }
 
-		/// <summary>
-		/// Gets a reference to a block blob with the given unique blob name
-		/// </summary>
-		/// <param name="blobId">The unique block blob identifier</param>
-		/// <returns>A reference to the block blob</returns>
-		public CloudBlockBlob GetBlockBlobReference(string blobId)
+	    /// <summary>
+	    /// Gets a reference to a block blob with the given unique blob name
+	    /// </summary>
+	    /// <param name="blobId">The unique block blob identifier</param>
+	    /// <returns>A reference to the block blob</returns>
+	    public CloudBlockBlob GetBlockBlobReference(string blobId)
 		{
 			Validate.BlobName(blobId, "blobId");
 
@@ -136,13 +132,13 @@ namespace Azure.Storage
         /// </summary>
         /// <param name="blobId"></param>
         /// <returns>Stream</returns>
-	    public Stream GetBlockBlobDataAsStream(string blobId)
+	    public async Task<Stream> GetBlockBlobDataAsStreamAsync(string blobId)
 	    {
             Validate.BlobName(blobId, "blobId");
 
             var blob = cloudBlobContainer.GetBlockBlobReference(blobId);
             var stream = new MemoryStream();
-            blob.DownloadToStream(stream);
+            await blob.DownloadToStreamAsync(stream);
             stream.Seek(0, SeekOrigin.Begin);
 
             return stream;
@@ -154,20 +150,20 @@ namespace Azure.Storage
         /// </summary>
         /// <param name="blobId"></param>
         /// <returns>string</returns>
-	    public string GetBlockBlobDataAsString(string blobId)
+	    public async Task<string> GetBlockBlobDataAsStringAsync(string blobId)
 	    {
             Validate.BlobName(blobId, "blobId");
 
             var blob = cloudBlobContainer.GetBlockBlobReference(blobId);
-            return blob.DownloadText();
+            return await blob.DownloadTextAsync();
 	    }
 
-        /// <summary>
-        /// Returns a list of all the blobs in a container
-        /// </summary>
-        /// <param name="containerName"></param>
-        /// <returns></returns>
-        public IEnumerable<IListBlobItem> GetBlockBlobsInContainer(string containerName)
+	    /// <summary>
+	    /// Returns a list of all the blobs in a container
+	    /// </summary>
+	    /// <param name="containerName"></param>
+	    /// <returns></returns>
+	    public IEnumerable<IListBlobItem> GetBlockBlobsInContainer(string containerName)
         {
             Validate.BlobContainerName(containerName, "containerName");
             return cloudBlobContainer.ListBlobs(null, true).ToList();
@@ -176,19 +172,19 @@ namespace Azure.Storage
 		/// <summary>
 		/// Deletes the blob container
 		/// </summary>
-        public void DeleteBlobContainer()
+        public async Task DeleteBlobContainerAsync()
         {
-            cloudBlobContainer.DeleteIfExists();
+            await cloudBlobContainer.DeleteIfExistsAsync();
         }
 
         /// <summary>
         /// Deletes the block blob with the given unique blob name
         /// </summary>
         /// <param name="blobId">The unique block blob identifier</param>
-        public void DeleteBlob(string blobId)
+        public async Task DeleteBlobAsync(string blobId)
         {
             var blob = cloudBlobContainer.GetBlockBlobReference(blobId);
-            blob.DeleteIfExists();
+            await blob.DeleteIfExistsAsync();
         }
 	}
 }

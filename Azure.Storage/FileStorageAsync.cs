@@ -1,15 +1,16 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
 using Azure.Storage.Interfaces;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.File;
 
 namespace Azure.Storage
 {
-    public class FileStorage : IFileStorage
+    public class FileStorageAsync : IFileStorageAsync
     {
         private readonly CloudFileShare cloudFileShare;
 
-        public FileStorage(string fileShareName, string storageConnectionString )
+        public FileStorageAsync(string fileShareName, string storageConnectionString )
         {
             Validate.String(fileShareName, "fileShareName");
             Validate.String(storageConnectionString, "storageConnectionString");
@@ -22,25 +23,25 @@ namespace Azure.Storage
             cloudFileShare.CreateIfNotExists();
         }
 
-        public void CreateDirectory(string directoryName)
+        public async Task CreateDirectoryAsync(string directoryName)
         {
             Validate.String(directoryName, "directoryName");
 
             var rootDirectory = cloudFileShare.GetRootDirectoryReference();
             var newDirectory = rootDirectory.GetDirectoryReference(directoryName);
-            newDirectory.CreateIfNotExists();
+            await newDirectory.CreateIfNotExistsAsync();
         }
 
-        public void DeleteDirectory(string directoryName)
+        public async Task DeleteDirectoryAsync(string directoryName)
         {
             Validate.String(directoryName, "directoryName");
 
             var rootDirectory = cloudFileShare.GetRootDirectoryReference();
             var newDirectory = rootDirectory.GetDirectoryReference(directoryName);
-            newDirectory.DeleteIfExists();
+            await newDirectory.DeleteIfExistsAsync();
         }
 
-        public void WriteTextToFile(string directoryName, string fileName, string content)
+        public async Task WriteTextToFileAsync(string directoryName, string fileName, string content)
         {
             Validate.String(directoryName, "directoryName");
             Validate.String(fileName, "fileName");
@@ -54,10 +55,10 @@ namespace Azure.Storage
                 file.Create(long.MaxValue);
             }
                 
-            file.UploadText(content);
+            await file.UploadTextAsync(content);
         }
 
-        public void WriteStreamToFile(string directoryName, string fileName, Stream content)
+        public async Task WriteStreamToFileAsync(string directoryName, string fileName, Stream content)
         {
             Validate.String(directoryName, "directoryName");
             Validate.String(fileName, "fileName");
@@ -71,10 +72,10 @@ namespace Azure.Storage
                 file.Create(long.MaxValue);
             }
 
-            file.UploadFromStream(content);
+            await file.UploadFromStreamAsync(content);
         }
 
-        public void UploadFile(string directoryName, string fileName, string sourceFilePath)
+        public async Task UploadFileAsync(string directoryName, string fileName, string sourceFilePath)
         {
             Validate.String(directoryName, "directoryName");
             Validate.String(fileName, "fileName");
@@ -90,10 +91,10 @@ namespace Azure.Storage
 
             const FileMode fileMode = FileMode.OpenOrCreate;
 
-            file.UploadFromFile(sourceFilePath, fileMode);
+            await file.UploadFromFileAsync(sourceFilePath, fileMode);
         }
 
-        public void DeleteFile(string directoryName, string fileName)
+        public async Task DeleteFileAsync(string directoryName, string fileName)
         {
             Validate.String(directoryName, "directoryName");
             Validate.String(fileName, "fileName");
@@ -102,7 +103,7 @@ namespace Azure.Storage
             var directoryToUpdate = rootDirectory.GetDirectoryReference(directoryName);
             var file = directoryToUpdate.GetFileReference(fileName);
 
-            file.DeleteIfExists();
+            await file.DeleteIfExistsAsync();
         }
     }
 }
