@@ -1,0 +1,21 @@
+Azure.Storage provides a wrapper around the native Azure Storage API and allows you to quickly and easily interact with any current Azure Storage offering. The project will aim to target the latest Azure SDK and use best practices as advised by Microsoft.
+
+To get started, you will need to grab the latest version from Nuget
+
+** Add image from Nuget **
+
+You can still dowload the source code and run it locally if you wish to know how things work under the covers.
+
+Azure.Storage provide 4 basic classes, each responsible for a separate Azure storage type:
+
+- BlobStorage --> for managing blob objects
+- QueueStorage --> for managing queues
+- TableStorage --> for managing table storage
+- FileStorage --> for managing folders and files on Azure-attached drives
+
+
+
+You will need the latest Windows Azure SDK for .NET. You can find
+it here: https://www.windowsazure.com/en-us/develop/downloads/
+
+ 
