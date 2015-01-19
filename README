@@ -1,8 +1,10 @@
-Azure.Storage provides a wrapper around the native Azure Storage API and allows you to quickly and easily interact with any current Azure Storage offering. The project will aim to target the latest Azure SDK and use best practices as advised by Microsoft.
+[![Build status](https://ci.appveyor.com/api/projects/status/ieeyjps9a760qm61?svg=true)](https://ci.appveyor.com/project/cmatskas/azure)
+
+Azure.Storage provides a wrapper around the native Azure Storage API and allows you to quickly and easily interact with the 
+current Azure Storage offerings. The project will aim to target the latest Azure SDK and use best practices as advised by 
+Microsoft.
 
 To get started, you will need to grab the latest version from Nuget
-
-** Add image from Nuget **
 
 You can still dowload the source code and run it locally if you wish to know how things work under the covers.
 
@@ -13,9 +15,12 @@ Azure.Storage provide 4 basic classes, each responsible for a separate Azure sto
 - TableStorage --> for managing table storage
 - FileStorage --> for managing folders and files on Azure-attached drives
 
+The library will also be released as a PCL to enable cross platform mobile application development. For xamarin developers, the
+project will also be released in the Xamarin components 
 
+Please note that the unit tests are still being added so it's early days before and if you decide to use it you should now that some
+paths of the code have not been tested. 
 
-You will need the latest Windows Azure SDK for .NET. You can find
-it here: https://www.windowsazure.com/en-us/develop/downloads/
+Let me know of your thoughts and if you have any questions.
 
  
