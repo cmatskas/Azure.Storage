@@ -1,6 +1,8 @@
 Azure.Storage
 =============
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cmatskas/Azure.Storage?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 **Build Status:** [![Build status](https://ci.appveyor.com/api/projects/status/6i7g6igga5ee8o3l)](https://ci.appveyor.com/project/cmatskas/azure)
 
 Azure.Storage provides a wrapper around the native Azure Storage API and allows you to quickly and easily interact with the 
