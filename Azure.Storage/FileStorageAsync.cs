@@ -32,6 +32,27 @@ namespace Azure.Storage
             await newDirectory.CreateIfNotExistsAsync();
         }
 
+        public bool DirectoryExists(string directoryName)
+        {
+            Validate.String(directoryName, "directoryName");
+            var rootDirectory = cloudFileShare.GetRootDirectoryReference();
+            var directoryToTest = rootDirectory.GetDirectoryReference(directoryName);
+
+            return directoryToTest.Exists();
+        }
+
+        public bool FileExists(string directoryName, string fileName)
+        {
+            Validate.String(directoryName, "directoryName");
+            Validate.String(fileName, "fileName");
+
+            var rootDirectory = cloudFileShare.GetRootDirectoryReference();
+            var directoryToUpdate = rootDirectory.GetDirectoryReference(directoryName);
+            var file = directoryToUpdate.GetFileReference(fileName);
+
+            return file.Exists();
+        }
+
         public async Task DeleteDirectoryAsync(string directoryName)
         {
             Validate.String(directoryName, "directoryName");

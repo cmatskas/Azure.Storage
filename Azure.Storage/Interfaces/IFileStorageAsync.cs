@@ -11,5 +11,7 @@ namespace Azure.Storage.Interfaces
         Task WriteStreamToFileAsync(string directoryName, string fileName, Stream content);
         Task UploadFileAsync(string directoryName, string fileName, string sourceFilePath);
         Task DeleteFileAsync(string directoryName, string fileName);
+        bool DirectoryExists(string directoryName);
+        bool FileExists(string directoryName, string fileName);
     }
 }

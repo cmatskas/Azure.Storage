@@ -10,5 +10,7 @@ namespace Azure.Storage.Interfaces
         void WriteStreamToFile(string directoryName, string fileName, Stream content);
         void UploadFile(string directoryName, string fileName, string sourceFilePath);
         void DeleteFile(string directoryName, string fileName);
+        bool DirectoryExists(string directoryName);
+        bool FileExists(string directoryName, string fileName);
     }
 }
