@@ -14,6 +14,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{9A0659
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.Storage.Tests", "Azure.Storage.Tests\Azure.Storage.Tests.csproj", "{0625B29E-6FD6-426B-A3C9-A4636E939FCF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.Storage.Portable", "Azure.Storage.Portable\Azure.Storage.Portable.csproj", "{67F9D3A8-F71E-4428-913F-C37AE82CDB24}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Azure.Storage.Portable.Tests", "Azure.Storage.Portable.Tests\Azure.Storage.Portable.Tests.csproj", "{929CD654-2627-406A-BA58-E1097CCA2151}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +32,14 @@ Global
 		{0625B29E-6FD6-426B-A3C9-A4636E939FCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0625B29E-6FD6-426B-A3C9-A4636E939FCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0625B29E-6FD6-426B-A3C9-A4636E939FCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67F9D3A8-F71E-4428-913F-C37AE82CDB24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67F9D3A8-F71E-4428-913F-C37AE82CDB24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67F9D3A8-F71E-4428-913F-C37AE82CDB24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67F9D3A8-F71E-4428-913F-C37AE82CDB24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{929CD654-2627-406A-BA58-E1097CCA2151}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{929CD654-2627-406A-BA58-E1097CCA2151}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{929CD654-2627-406A-BA58-E1097CCA2151}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{929CD654-2627-406A-BA58-E1097CCA2151}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
