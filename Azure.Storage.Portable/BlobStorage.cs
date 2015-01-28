@@ -16,10 +16,10 @@ namespace Azure.Storage.Portable
     {
         /* <service name="Blob" url="http://127.0.0.1:10000/"/>
         <service name="Queue" url="http://127.0.0.1:10001/"/>
-        <service name="Table" url="http://127.0.0.1:10002/"/> */
+        <service name="Table" url="http://127.0.0.1:10002/"/> 
         private string blobUrl = "http://127.0.0.1:10000/devstoreaccount1/";
         private string queueUrl = "http://127.0.0.1:10000/devstoreaccount1/";
-        private string tableUrl = "http://127.0.0.1:10000/devstoreaccount1/"; 
+        private string tableUrl = "http://127.0.0.1:10000/devstoreaccount1/"; */
 
         /*private string blobUrl = "http://ipv4.fiddler:10000/devstoreaccount1/";
         private string queueUrl = "http://ipv4.fiddler:10000/devstoreaccount1/";
@@ -29,12 +29,14 @@ namespace Azure.Storage.Portable
         private readonly string containerName;
         private readonly string account;
         private readonly string key;
+        private readonly string endpointUrl;
 
-        public BlobStorage(string containerName, string account, string key, bool isPublic = true)
+        public BlobStorage(string endpointUrl, string containerName, string account, string key, bool isPublic = true)
         {
             this.containerName = containerName;
             this.account = account;
             this.key = key;
+            this.endpointUrl = endpointUrl;
         }
 
         private string CreateAuthorizationHeader(string canonicalizedString)
@@ -80,7 +82,7 @@ namespace Azure.Storage.Portable
 
             var authorizationHeader = CreateAuthorizationHeader(stringToSign);
 
-            var uri = new Uri(blobUrl + urlPath);
+            var uri = new Uri(endpointUrl + urlPath);
             var httpClient = new HttpClient();
             var httpRequest = new HttpRequestMessage(new HttpMethod("PUT"), uri);
             httpRequest.Headers.Add("x-ms-date", dateInRfc1123Format);
@@ -90,6 +92,50 @@ namespace Azure.Storage.Portable
             var response = httpClient.SendAsync(httpRequest).Result;
             IEnumerable<string> values;
             
+            return response.Headers.TryGetValues("Etag", out values) ? values.First() : string.Empty;
+        }
+
+        public string ChangeContainerAccess(bool makePublic = true)
+        {
+            var urlPath = String.Format("{0}?{1}&{2}", containerName, "comp=acl","restype=container");
+            //var data = GetContainerAclRequestBody();
+            var dateInRfc1123Format = DateTime.UtcNow.ToString("R", CultureInfo.InvariantCulture);
+
+            var canonicalizedHeaders = String.Format(
+                "x-ms-blob-public-access:container\nx-ms-date:{0}\nx-ms-version:{1}",
+                dateInRfc1123Format,
+                StorageServiceVersion);
+            var canonicalizedResource = String.Format("/{0}/{0}/{1}\n{2}\n{3}", "devstoreaccount1", containerName, "comp:acl", "restype:container");
+            var stringToSign = String.Format("PUT\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "0\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "{0}\n" +
+                                             "{1}",
+                canonicalizedHeaders,
+                canonicalizedResource);
+
+            var authorizationHeader = CreateAuthorizationHeader(stringToSign);
+            
+            var uri = new Uri(endpointUrl + urlPath);
+            var httpClient = new HttpClient();
+            var httpRequest = new HttpRequestMessage(new HttpMethod("PUT"), uri);
+            httpRequest.Headers.Add("x-ms-date", dateInRfc1123Format);
+            httpRequest.Headers.Add("x-ms-version", StorageServiceVersion);
+            httpRequest.Headers.Add("x-ms-blob-public-access","container");
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("SharedKey", authorizationHeader);
+
+            var response = httpClient.SendAsync(httpRequest).Result;
+            IEnumerable<string> values;
+
             return response.Headers.TryGetValues("Etag", out values) ? values.First() : string.Empty;
         }
 
@@ -113,7 +159,7 @@ namespace Azure.Storage.Portable
 
             var authorizationHeader = CreateAuthorizationHeader(stringToSign);
 
-            var uri = new Uri(blobUrl + urlPath);
+            var uri = new Uri(endpointUrl + urlPath);
             var httpClient = new HttpClient();
             var httpRequest = new HttpRequestMessage(new HttpMethod("PUT"), uri);
             httpRequest.Headers.Add("x-ms-date", dateInRfc1123Format);

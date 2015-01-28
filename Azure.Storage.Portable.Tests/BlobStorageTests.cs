@@ -10,12 +10,14 @@ namespace Azure.Storage.Portable.Tests
         private string containerName = "restapicontainertest";
         private const string Account = "devstoreaccount1";
         private const string Key = "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==";
+        //private const string EndpointUrl = "http://127.0.0.1:10000/devstoreaccount1/";
+        private const string EndpointUrl = "http://ipv4.fiddler:10000/devstoreaccount1/";
 
         private readonly BlobStorage blobStorage;
 
         public BlobStorageTests()
         {
-            blobStorage = new BlobStorage(containerName, Account, Key);
+            blobStorage = new BlobStorage(EndpointUrl, containerName, Account, Key);
         }
 
         public void Dispose()
@@ -42,6 +44,12 @@ namespace Azure.Storage.Portable.Tests
         {
             var bytes = Encoding.UTF8.GetBytes("hello world");
             var result = blobStorage.CreateBlockBlob("resttestbyteblob", bytes);
+        }
+
+        [Fact]
+        public void SetContainerAclToPublicShouldSucceed()
+        {
+            var result = blobStorage.ChangeContainerAccess();
         }
 
         [Fact]
