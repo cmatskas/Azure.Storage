@@ -13,7 +13,7 @@ namespace Azure.Storage.Interfaces
         CloudBlockBlob GetBlockBlobReference(string blobId);
         Stream GetBlockBlobDataAsStream(string blobId);
         string GetBlockBlobDataAsString(string blobId);
-        IEnumerable<IListBlobItem> GetBlockBlobsInContainer(string containerName);
+        IEnumerable<IListBlobItem> ListBlobsInContainer();
         void DeleteBlobContainer();
         void DeleteBlob(string blobId);
     }

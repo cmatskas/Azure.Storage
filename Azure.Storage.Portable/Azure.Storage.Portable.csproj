@@ -36,8 +36,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="EnumerationResults.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BlobStorage.cs" />
+    <Compile Include="Validate.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="bouncy_castle_hmac_sha_pcl">

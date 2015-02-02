@@ -112,7 +112,7 @@ namespace Azure.Storage.Tests
             const string originalValue = "Hello World";
             blobStorage.CreateBlockBlob(stringBlob1, "text/plain", originalValue);
             blobStorage.CreateBlockBlob(stringBlob2, "text/plain", originalValue);
-            var result = blobStorage.GetBlockBlobsInContainer(ContainerName).ToList();
+            var result = blobStorage.ListBlobsInContainer().ToList();
 
             Assert.NotNull(result);
             Assert.NotEmpty(result);
@@ -131,7 +131,7 @@ namespace Azure.Storage.Tests
             Assert.NotNull(createResult);
 
             blobStorage.DeleteBlob(blobToDelete);
-            var deleteResult = blobStorage.GetBlockBlobsInContainer(blobToDelete).ToList();
+            var deleteResult = blobStorage.ListBlobsInContainer().ToList();
 
             Assert.True(deleteResult.Count == 0);
         }

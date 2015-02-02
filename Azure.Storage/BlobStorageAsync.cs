@@ -163,7 +163,7 @@ namespace Azure.Storage
 	    /// </summary>
 	    /// <param name="containerName"></param>
 	    /// <returns></returns>
-	    public IEnumerable<IListBlobItem> GetBlockBlobsInContainer(string containerName)
+        public IEnumerable<IListBlobItem> ListBlobsInContainer(string containerName)
         {
             Validate.BlobContainerName(containerName, "containerName");
             return cloudBlobContainer.ListBlobs(null, true).ToList();

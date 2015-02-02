@@ -3,27 +3,19 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Azure.Storage.Portable
 {
     public class BlobStorage
     {
-        /* <service name="Blob" url="http://127.0.0.1:10000/"/>
-        <service name="Queue" url="http://127.0.0.1:10001/"/>
-        <service name="Table" url="http://127.0.0.1:10002/"/> 
-        private string blobUrl = "http://127.0.0.1:10000/devstoreaccount1/";
-        private string queueUrl = "http://127.0.0.1:10000/devstoreaccount1/";
-        private string tableUrl = "http://127.0.0.1:10000/devstoreaccount1/"; */
-
-        /*private string blobUrl = "http://ipv4.fiddler:10000/devstoreaccount1/";
-        private string queueUrl = "http://ipv4.fiddler:10000/devstoreaccount1/";
-        private string tableUrl = "http://ipv4.fiddler:10000/devstoreaccount1/"; */
         private const string StorageServiceVersion = "2009-09-19";
 
         private readonly string containerName;
@@ -31,12 +23,25 @@ namespace Azure.Storage.Portable
         private readonly string key;
         private readonly string endpointUrl;
 
-        public BlobStorage(string endpointUrl, string containerName, string account, string key, bool isPublic = true)
+        public BlobStorage(string endpointUrl, string containerName, string account, string key, bool makePublic = true)
         {
+            Validate.String(endpointUrl, "endpointUrl");
+            Validate.BlobContainerName(containerName, "containerName");
+            Validate.String(account, "account");
+            Validate.String(key, "key");
+
             this.containerName = containerName;
             this.account = account;
             this.key = key;
             this.endpointUrl = endpointUrl;
+            var response = GetContainer(); //find it
+            
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                response = CreateContainer(); // create it
+            }
+
+            ChangeContainerAccess(makePublic); // change ACL settings
         }
 
         private string CreateAuthorizationHeader(string canonicalizedString)
@@ -51,7 +56,46 @@ namespace Azure.Storage.Portable
             return string.Format(CultureInfo.InvariantCulture, "{0}:{1}", account, signature);
         }
 
-        public string CreateContainer()
+        public HttpResponseMessage GetContainer()
+        {
+            var urlPath = String.Format("{0}?{1}", containerName, "restype=container");
+            var dateInRfc1123Format = DateTime.UtcNow.ToString("R", CultureInfo.InvariantCulture);
+
+            var canonicalizedHeaders = String.Format(
+                "x-ms-date:{0}\nx-ms-version:{1}",
+                dateInRfc1123Format,
+                StorageServiceVersion);
+            var canonicalizedResource = String.Format("/{0}/{0}/{1}\n{2}", "devstoreaccount1", containerName, "restype:container");
+            var stringToSign = String.Format("GET\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "{0}\n" +
+                                             "{1}",
+                canonicalizedHeaders,
+                canonicalizedResource);
+
+            var authorizationHeader = CreateAuthorizationHeader(stringToSign);
+
+            var uri = new Uri(endpointUrl + urlPath);
+            var httpClient = new HttpClient();
+            var httpRequest = new HttpRequestMessage(new HttpMethod("GET"), uri);
+            httpRequest.Headers.Add("x-ms-date", dateInRfc1123Format);
+            httpRequest.Headers.Add("x-ms-version", StorageServiceVersion);
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("SharedKey", authorizationHeader);
+
+            return httpClient.SendAsync(httpRequest).Result;
+        }
+
+        private HttpResponseMessage CreateContainer()
         {
             var urlPath = String.Format("{0}?{1}", containerName, "restype=container");
             
@@ -89,22 +133,18 @@ namespace Azure.Storage.Portable
             httpRequest.Headers.Add("x-ms-version", StorageServiceVersion);
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("SharedKey", authorizationHeader);
 
-            var response = httpClient.SendAsync(httpRequest).Result;
-            IEnumerable<string> values;
-            
-            return response.Headers.TryGetValues("Etag", out values) ? values.First() : string.Empty;
+            return httpClient.SendAsync(httpRequest).Result;
         }
 
-        public string ChangeContainerAccess(bool makePublic = true)
+        public HttpResponseMessage ChangeContainerAccess(bool makePublic = true)
         {
             var urlPath = String.Format("{0}?{1}&{2}", containerName, "comp=acl","restype=container");
-            //var data = GetContainerAclRequestBody();
             var dateInRfc1123Format = DateTime.UtcNow.ToString("R", CultureInfo.InvariantCulture);
 
-            var canonicalizedHeaders = String.Format(
-                "x-ms-blob-public-access:container\nx-ms-date:{0}\nx-ms-version:{1}",
-                dateInRfc1123Format,
-                StorageServiceVersion);
+            var canonicalizedHeaders = makePublic
+                ? String.Format("x-ms-blob-public-access:container\nx-ms-date:{0}\nx-ms-version:{1}",
+                    dateInRfc1123Format, StorageServiceVersion)
+                : String.Format("x-ms-date:{0}\nx-ms-version:{1}", dateInRfc1123Format, StorageServiceVersion);
             var canonicalizedResource = String.Format("/{0}/{0}/{1}\n{2}\n{3}", "devstoreaccount1", containerName, "comp:acl", "restype:container");
             var stringToSign = String.Format("PUT\n" +
                                              "\n" +
@@ -130,17 +170,21 @@ namespace Azure.Storage.Portable
             var httpRequest = new HttpRequestMessage(new HttpMethod("PUT"), uri);
             httpRequest.Headers.Add("x-ms-date", dateInRfc1123Format);
             httpRequest.Headers.Add("x-ms-version", StorageServiceVersion);
-            httpRequest.Headers.Add("x-ms-blob-public-access","container");
+            if (makePublic)
+            {
+                httpRequest.Headers.Add("x-ms-blob-public-access", "container");
+            }
+
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("SharedKey", authorizationHeader);
 
-            var response = httpClient.SendAsync(httpRequest).Result;
-            IEnumerable<string> values;
-
-            return response.Headers.TryGetValues("Etag", out values) ? values.First() : string.Empty;
+            return httpClient.SendAsync(httpRequest).Result;
         }
 
-        public string CreateBlockBlob(string blobName, Stream data)
+        public HttpResponseMessage CreateBlockBlob(string blobName, Stream data)
         {
+            Validate.BlobName(blobName, "blobName");
+            Validate.Stream(data, "data");
+
             var urlPath = String.Format("{0}/{1}", containerName, blobName);
             var dateInRfc1123Format = DateTime.UtcNow.ToString("R", CultureInfo.InvariantCulture);
 
@@ -168,48 +212,216 @@ namespace Azure.Storage.Portable
             httpRequest.Headers.Authorization = new AuthenticationHeaderValue("SharedKey", authorizationHeader);
             httpRequest.Content = new StreamContent(data);
 
-            var response = httpClient.SendAsync(httpRequest).Result;
-            IEnumerable<string> values;
-
-            return response.Headers.TryGetValues("Etag", out values) ? values.First() : string.Empty;
+            return httpClient.SendAsync(httpRequest).Result;
         }
 
-        public string CreateBlockBlob(string blobName, byte[] data)
+        public HttpResponseMessage CreateBlockBlob(string blobName, byte[] data)
         {
+            Validate.BlobName(blobName, "blobName");
+            Validate.ByteArray(data, "data");
+
             var stream = new MemoryStream(data);
             return CreateBlockBlob(blobName, stream);
         }
 
-        public string CreateBlockBlob(string blobName, string data)
+        public HttpResponseMessage CreateBlockBlob(string blobName, string data)
         {
+            Validate.BlobName(blobName, "blobName");
+            Validate.String(data, "data");
+
             var bytes = Encoding.UTF8.GetBytes(data);
             var stream = new MemoryStream(bytes);
             return CreateBlockBlob(blobName, stream);
         }
 
-        public Task GetBlockBlobDataAsStreamAsync(string blobId)
+        public Stream GetBlockBlobDataAsStream(string blobName)
         {
-            throw new NotImplementedException();
+            Validate.BlobName(blobName, "blobName");
+
+            var urlPath = String.Format("{0}/{1}", containerName, blobName);
+            var dateInRfc1123Format = DateTime.UtcNow.ToString("R", CultureInfo.InvariantCulture);
+
+            var canonicalizedHeaders = String.Format(
+                "x-ms-date:{0}\nx-ms-version:{1}",
+                dateInRfc1123Format,
+                StorageServiceVersion);
+            var canonicalizedResource = String.Format("/{0}/{0}/{1}/{2}", "devstoreaccount1", containerName, blobName);
+            var stringToSign = String.Format("GET\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "{0}\n" +
+                                             "{1}",
+                canonicalizedHeaders,
+                canonicalizedResource);
+
+            var authorizationHeader = CreateAuthorizationHeader(stringToSign);
+
+            var uri = new Uri(endpointUrl + urlPath);
+            var httpClient = new HttpClient();
+            var httpRequest = new HttpRequestMessage(new HttpMethod("GET"), uri);
+            httpRequest.Headers.Add("x-ms-date", dateInRfc1123Format);
+            httpRequest.Headers.Add("x-ms-version", StorageServiceVersion);
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("SharedKey", authorizationHeader);
+
+            var response = httpClient.SendAsync(httpRequest).Result;
+            return response.Content.ReadAsStreamAsync().Result;
         }
 
-        public Task GetBlockBlobDataAsStringAsync(string blobId)
+        public string GetBlockBlobDataAsString(string blobName)
         {
-            throw new NotImplementedException();
+            string content;
+            var stream = GetBlockBlobDataAsStream(blobName);
+            using (var reader = new StreamReader(stream))
+            {
+                content = reader.ReadToEnd();
+            }
+
+            return content;
         }
 
-        public IEnumerable<string> GetBlockBlobsInContainer(string containerName)
+        public IEnumerable<string> ListBlobsInContainer()
         {
-            throw new NotImplementedException();
+            var urlPath = String.Format("{0}?{1}&{2}", containerName, "comp=list", "restype=container");
+            var dateInRfc1123Format = DateTime.UtcNow.ToString("R", CultureInfo.InvariantCulture);
+
+            var canonicalizedHeaders = String.Format(
+                "x-ms-date:{0}\nx-ms-version:{1}",
+                dateInRfc1123Format,
+                StorageServiceVersion);
+            var canonicalizedResource = String.Format("/{0}/{0}/{1}\n{2}\n{3}", "devstoreaccount1", containerName, "comp:list", "restype:container");
+            var stringToSign = String.Format("GET\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "{0}\n" +
+                                             "{1}",
+                canonicalizedHeaders,
+                canonicalizedResource);
+
+            var authorizationHeader = CreateAuthorizationHeader(stringToSign);
+
+            var uri = new Uri(endpointUrl + urlPath);
+            var httpClient = new HttpClient();
+            var httpRequest = new HttpRequestMessage(new HttpMethod("GET"), uri);
+            httpRequest.Headers.Add("x-ms-date", dateInRfc1123Format);
+            httpRequest.Headers.Add("x-ms-version", StorageServiceVersion);
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("SharedKey", authorizationHeader);
+            var response = httpClient.SendAsync(httpRequest).Result;
+            var contents = response.Content.ReadAsStringAsync().Result;
+            return GetBlobListFromResponse(contents);
         }
 
-        public Task DeleteBlobContainerAsync()
+        private static IEnumerable<string> GetBlobListFromResponse(string xml)
         {
-            throw new NotImplementedException();
+            var serializer = new XmlSerializer(typeof(EnumerationResults));
+            EnumerationResults blobs;
+            using (TextReader reader = new StringReader(xml))
+            {
+                blobs = (EnumerationResults)serializer.Deserialize(reader);
+            }
+
+            return blobs.Blobs.Select(t => t.Url).ToList();
         }
 
-        public Task DeleteBlobAsync(string blobId)
+        public HttpResponseMessage DeleteBlobContainer()
         {
-            throw new NotImplementedException();
+            var getResponse = GetContainer();
+            if (getResponse.StatusCode == HttpStatusCode.NotFound)
+            {
+                return new HttpResponseMessage(HttpStatusCode.NotFound);
+            }
+
+            var urlPath = String.Format("{0}?{1}", containerName, "restype=container");
+            var dateInRfc1123Format = DateTime.UtcNow.ToString("R", CultureInfo.InvariantCulture);
+
+            var canonicalizedHeaders = String.Format(
+                "x-ms-date:{0}\nx-ms-version:{1}",
+                dateInRfc1123Format,
+                StorageServiceVersion);
+            var canonicalizedResource = String.Format("/{0}/{0}/{1}\n{2}", "devstoreaccount1", containerName, "restype:container");
+            var stringToSign = String.Format("DELETE\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "0\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "{0}\n" +
+                                             "{1}",
+                canonicalizedHeaders,
+                canonicalizedResource);
+
+            var authorizationHeader = CreateAuthorizationHeader(stringToSign);
+
+            var uri = new Uri(endpointUrl + urlPath);
+            var httpClient = new HttpClient();
+            var httpRequest = new HttpRequestMessage(new HttpMethod("DELETE"), uri);
+            httpRequest.Headers.Add("x-ms-date", dateInRfc1123Format);
+            httpRequest.Headers.Add("x-ms-version", StorageServiceVersion);
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("SharedKey", authorizationHeader);
+
+            return httpClient.SendAsync(httpRequest).Result;
+        }
+
+        public HttpResponseMessage DeleteBlob(string blobName)
+        {
+            var urlPath = String.Format("{0}/{1}", containerName, blobName);
+            var dateInRfc1123Format = DateTime.UtcNow.ToString("R", CultureInfo.InvariantCulture);
+
+            var canonicalizedHeaders = String.Format(
+                "x-ms-date:{0}\nx-ms-version:{1}",
+                dateInRfc1123Format,
+                StorageServiceVersion);
+            var canonicalizedResource = String.Format("/{0}/{0}/{1}/{2}", "devstoreaccount1", containerName, blobName);
+            var stringToSign = String.Format("DELETE\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "0\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "\n" +
+                                             "{0}\n" +
+                                             "{1}",
+                canonicalizedHeaders,
+                canonicalizedResource);
+
+            var authorizationHeader = CreateAuthorizationHeader(stringToSign);
+
+            var uri = new Uri(endpointUrl + urlPath);
+            var httpClient = new HttpClient();
+            var httpRequest = new HttpRequestMessage(new HttpMethod("DELETE"), uri);
+            httpRequest.Headers.Add("x-ms-date", dateInRfc1123Format);
+            httpRequest.Headers.Add("x-ms-version", StorageServiceVersion);
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("SharedKey", authorizationHeader);
+
+            return httpClient.SendAsync(httpRequest).Result;
         }
     }
 }

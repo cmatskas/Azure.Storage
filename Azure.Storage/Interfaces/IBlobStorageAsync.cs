@@ -14,7 +14,7 @@ namespace Azure.Storage.Interfaces
         CloudBlockBlob GetBlockBlobReference(string blobId);
         Task<Stream> GetBlockBlobDataAsStreamAsync(string blobId);
         Task<string> GetBlockBlobDataAsStringAsync(string blobId);
-        IEnumerable<IListBlobItem> GetBlockBlobsInContainer(string containerName);
+        IEnumerable<IListBlobItem> ListBlobsInContainer(string containerName);
         Task DeleteBlobContainerAsync();
         Task DeleteBlobAsync(string blobId);
     }
