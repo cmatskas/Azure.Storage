@@ -37,6 +37,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="EnumerationResults.cs" />
+    <Compile Include="Interfaces\IBlobStorage.cs" />
+    <Compile Include="Interfaces\IFileStorage.cs" />
+    <Compile Include="Interfaces\IQueueStorage.cs" />
+    <Compile Include="Interfaces\ITableStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BlobStorage.cs" />
     <Compile Include="Validate.cs" />

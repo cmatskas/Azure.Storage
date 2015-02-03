@@ -1,19 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using Microsoft.WindowsAzure.Storage.Blob;
+using System.Net.Http;
 
-namespace Azure.Storage.Interfaces
+namespace Azure.Storage.Portable.Interfaces
 {
     public interface IBlobStorage
     {
-        string CreateBlockBlob(string blobId, string contentType, Stream data);
-        string CreateBlockBlob(string blobId, string contentType, byte[] data);
-        string CreateBlockBlob(string blobId, string contentType, string data);
-        string CreateBlockBlob(string blobId, string filePath);
-        CloudBlockBlob GetBlockBlobReference(string blobId);
-        Stream GetBlockBlobDataAsStream(string blobId);
-        string GetBlockBlobDataAsString(string blobId);
-        IEnumerable<IListBlobItem> ListBlobsInContainer();
+        HttpResponseMessage GetContainer();
+        HttpResponseMessage ChangeContainerAccess(bool makePublic = true);
+        HttpResponseMessage CreateBlockBlob(string blobName, Stream data);
+        HttpResponseMessage CreateBlockBlob(string blobName, byte[] data);
+        HttpResponseMessage CreateBlockBlob(string blobId, string data);
+        Stream GetBlockBlobDataAsStream(string blobName);
+        string GetBlockBlobDataAsString(string blobName);
+        IEnumerable<string> ListBlobsInContainer();
         void DeleteBlobContainer();
         void DeleteBlob(string blobId);
     }
