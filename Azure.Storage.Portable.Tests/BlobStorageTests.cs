@@ -91,11 +91,38 @@ namespace Azure.Storage.Portable.Tests
         [Fact]
         public void DeleteBlobShouldSucceed()
         {
-            var blobToDelete = "blobtodelete";
+            const string blobToDelete = "blobtodelete";
             var result = blobStorage.CreateBlockBlob(blobToDelete, "hello World");
             result = blobStorage.DeleteBlob(blobToDelete);
 
             Assert.True(result.StatusCode == HttpStatusCode.Accepted);
+        }
+
+        [Fact]
+        public void GetBlobAsStreamShouldSucceed()
+        {
+            const string blobToDownload = "blobstreamtest";
+            const string originalText = "testing is fun";            
+            var result = blobStorage.CreateBlockBlob(blobToDownload, originalText);
+            var stream = blobStorage.GetBlockBlobDataAsStream(blobToDownload);
+            string downloadedText;
+            using (var reader = new StreamReader(stream, Encoding.UTF8))
+            {
+                downloadedText = reader.ReadToEnd();
+            }
+
+            Assert.True(originalText.Equals(downloadedText, StringComparison.CurrentCultureIgnoreCase));
+        }
+
+        [Fact]
+        public void GetBlobAsStringShouldSucceed()
+        {
+            const string blobToDownload = "blobstringtest";
+            const string originalText = "testing is fun";
+            var result = blobStorage.CreateBlockBlob(blobToDownload, originalText);
+            var downloadedText = blobStorage.GetBlockBlobDataAsString(blobToDownload);
+
+            Assert.True(originalText.Equals(downloadedText, StringComparison.CurrentCultureIgnoreCase));
         }
     }
 }
