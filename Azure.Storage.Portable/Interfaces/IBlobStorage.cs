@@ -14,7 +14,7 @@ namespace Azure.Storage.Portable.Interfaces
         Stream GetBlockBlobDataAsStream(string blobName);
         string GetBlockBlobDataAsString(string blobName);
         IEnumerable<string> ListBlobsInContainer();
-        void DeleteBlobContainer();
-        void DeleteBlob(string blobId);
+        HttpResponseMessage DeleteBlobContainer();
+        HttpResponseMessage DeleteBlob(string blobId);
     }
 }

@@ -1,18 +1,17 @@
 ﻿using System.Collections.Generic;
-using Microsoft.WindowsAzure.Storage.Table;
 
-namespace Azure.Storage.Interfaces
+namespace Azure.Storage.Portable.Interfaces
 {
-    public interface ITableStorage<T> where T : TableEntity, new()
+    public interface ITableStorage
     {
-        void CreateEntity(T entity);
-        void CreateEntities(IEnumerable<T> entities);
-        void InsertOrUpdate(T entity);
+        void CreateEntity(string entity);
+        void CreateEntities(IEnumerable<string> entities);
+        void InsertOrUpdate(string entity);
         void DeleteEntitiesByPartitionKey(string partitionKey);
         void DeleteEntitiesByRowKey(string rowKey);
         void DeleteEntity(string partitionKey, string rowKey);
-        IEnumerable<T> GetEntitiesByPartitionKey(string partitionKey);
-        IEnumerable<T> GetEntitiesByRowKey(string rowKey);
-        T GetEntityByPartitionKeyAndRowKey(string partitionKey, string rowKey);
+        IEnumerable<string> GetEntitiesByPartitionKey(string partitionKey);
+        IEnumerable<string> GetEntitiesByRowKey(string rowKey);
+        string GetEntityByPartitionKeyAndRowKey(string partitionKey, string rowKey);
     }
 }

@@ -21,6 +21,7 @@ namespace Azure.Storage.Portable
         private readonly string account;
         private readonly string key;
         private readonly string endpointUrl;
+        private bool runsOnEmulator = false;
 
         public BlobStorage(string endpointUrl, string containerName, string account, string key, bool makePublic = true)
         {
@@ -33,6 +34,8 @@ namespace Azure.Storage.Portable
             this.account = account;
             this.key = key;
             this.endpointUrl = endpointUrl;
+            runsOnEmulator = endpointUrl.Contains("127.0.0.1") || endpointUrl.Contains("fiddler");
+
             var response = GetContainer(); //find it
             
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -64,7 +67,11 @@ namespace Azure.Storage.Portable
                 "x-ms-date:{0}\nx-ms-version:{1}",
                 dateInRfc1123Format,
                 StorageServiceVersion);
-            var canonicalizedResource = String.Format("/{0}/{0}/{1}\n{2}", "devstoreaccount1", containerName, "restype:container");
+
+            var canonicalizedResource = runsOnEmulator
+                ? String.Format("/{0}/{0}/{1}\n{2}", "devstoreaccount1", containerName, "restype:container")
+                : String.Format("/{0}\n{1}", containerName, "restype:container");
+            
             var stringToSign = String.Format("GET\n" +
                                              "\n" +
                                              "\n" +
@@ -104,7 +111,9 @@ namespace Azure.Storage.Portable
                 "x-ms-date:{0}\nx-ms-version:{1}",
                 dateInRfc1123Format,
                 StorageServiceVersion);
-            var canonicalizedResource = String.Format("/{0}/{0}/{1}\n{2}", "devstoreaccount1", containerName, "restype:container");
+            var canonicalizedResource = runsOnEmulator
+                ? String.Format("/{0}/{0}/{1}\n{2}", "devstoreaccount1", containerName, "restype:container")
+                : String.Format("/{0}\n{1}", containerName, "restype:container");
 
             var stringToSign = String.Format("PUT\n" +
                                              "\n" +
@@ -141,10 +150,14 @@ namespace Azure.Storage.Portable
             var dateInRfc1123Format = DateTime.UtcNow.ToString("R", CultureInfo.InvariantCulture);
 
             var canonicalizedHeaders = makePublic
-                ? String.Format("x-ms-blob-public-access:container\nx-ms-date:{0}\nx-ms-version:{1}",
-                    dateInRfc1123Format, StorageServiceVersion)
-                : String.Format("x-ms-date:{0}\nx-ms-version:{1}", dateInRfc1123Format, StorageServiceVersion);
-            var canonicalizedResource = String.Format("/{0}/{0}/{1}\n{2}\n{3}", "devstoreaccount1", containerName, "comp:acl", "restype:container");
+                    ? String.Format("x-ms-blob-public-access:container\nx-ms-date:{0}\nx-ms-version:{1}",
+                            dateInRfc1123Format, StorageServiceVersion)
+                    : String.Format("x-ms-date:{0}\nx-ms-version:{1}", dateInRfc1123Format, StorageServiceVersion);
+
+            var canonicalizedResource = runsOnEmulator
+                ? String.Format("/{0}/{0}/{1}\n{2}\n{3}", "devstoreaccount1", containerName, "comp:acl",
+                    "restype:container")
+                : String.Format("/{0}\n{1}\n{2}", containerName, "comp:acl", "restype:container");
             var stringToSign = String.Format("PUT\n" +
                                              "\n" +
                                              "\n" +
@@ -192,7 +205,10 @@ namespace Azure.Storage.Portable
                 "BlockBlob",
                 dateInRfc1123Format,
                 StorageServiceVersion);
-            var canonicalizedResource = String.Format("/{0}/{0}/{1}", "devstoreaccount1", urlPath);
+
+            var canonicalizedResource = runsOnEmulator
+                ? String.Format("/{0}/{0}/{1}", "devstoreaccount1", urlPath)
+                : String.Format("/{0}", urlPath);
 
             var stringToSign = String.Format("{0}\n\n\n{1}\n\n\n\n\n\n\n\n\n{2}\n{3}",
                 "PUT",
@@ -244,7 +260,9 @@ namespace Azure.Storage.Portable
                 "x-ms-date:{0}\nx-ms-version:{1}",
                 dateInRfc1123Format,
                 StorageServiceVersion);
-            var canonicalizedResource = String.Format("/{0}/{0}/{1}/{2}", "devstoreaccount1", containerName, blobName);
+            var canonicalizedResource = runsOnEmulator
+                ? String.Format("/{0}/{0}/{1}/{2}", "devstoreaccount1", containerName, blobName)
+                : String.Format("/{0}/{1}", containerName, blobName);
             var stringToSign = String.Format("GET\n" +
                                              "\n" +
                                              "\n" +
@@ -296,7 +314,10 @@ namespace Azure.Storage.Portable
                 "x-ms-date:{0}\nx-ms-version:{1}",
                 dateInRfc1123Format,
                 StorageServiceVersion);
-            var canonicalizedResource = String.Format("/{0}/{0}/{1}\n{2}\n{3}", "devstoreaccount1", containerName, "comp:list", "restype:container");
+            var canonicalizedResource = runsOnEmulator 
+            ? String.Format("/{0}/{0}/{1}\n{2}\n{3}", "devstoreaccount1", containerName, "comp:list", "restype:container")
+            : String.Format("/{0}\n{1}\n{2}", containerName, "comp:list", "restype:container");
+
             var stringToSign = String.Format("GET\n" +
                                              "\n" +
                                              "\n" +
@@ -354,7 +375,9 @@ namespace Azure.Storage.Portable
                 "x-ms-date:{0}\nx-ms-version:{1}",
                 dateInRfc1123Format,
                 StorageServiceVersion);
-            var canonicalizedResource = String.Format("/{0}/{0}/{1}\n{2}", "devstoreaccount1", containerName, "restype:container");
+            var canonicalizedResource = runsOnEmulator
+                ? String.Format("/{0}/{0}/{1}\n{2}", "devstoreaccount1", containerName, "restype:container")
+                : String.Format("/{0}\n{1}", containerName, "restype:container");
             var stringToSign = String.Format("DELETE\n" +
                                              "\n" +
                                              "\n" +
@@ -393,7 +416,9 @@ namespace Azure.Storage.Portable
                 "x-ms-date:{0}\nx-ms-version:{1}",
                 dateInRfc1123Format,
                 StorageServiceVersion);
-            var canonicalizedResource = String.Format("/{0}/{0}/{1}/{2}", "devstoreaccount1", containerName, blobName);
+            var canonicalizedResource = runsOnEmulator
+                ? String.Format("/{0}/{0}/{1}/{2}", "devstoreaccount1", containerName, blobName)
+                : String.Format("/{0}/{1}", containerName, blobName);
             var stringToSign = String.Format("DELETE\n" +
                                              "\n" +
                                              "\n" +
