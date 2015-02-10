@@ -14,6 +14,8 @@ namespace Azure.Storage.Portable.Tests
         private const string ContainerToEnumerate = "containertoenumerate";
         private const string Account = "devstoreaccount1";
         private const string Key = "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==";
+
+        
         private const string EndpointUrl = "http://127.0.0.1:10000/devstoreaccount1/";
         //private const string EndpointUrl = "http://ipv4.fiddler:10000/devstoreaccount1/";
 
@@ -26,7 +28,7 @@ namespace Azure.Storage.Portable.Tests
 
         public void Dispose()
         {
-            blobStorage.DeleteBlobContainer();
+            //blobStorage.DeleteBlobContainer();
         }
         
         [Fact]

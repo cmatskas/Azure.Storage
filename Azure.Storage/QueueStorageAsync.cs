@@ -97,5 +97,28 @@ namespace Azure.Storage
 
 			await cloudQueue.DeleteMessageAsync(cloudQueueMessage);
 		}
+
+        /// <summary>
+        /// Deletes the current queue
+        /// </summary>
+        /// <returns></returns>
+	    public async Task DeleteQueueAsync()
+	    {
+	        await cloudQueue.DeleteIfExistsAsync();
+	    }
+
+        /// <summary>
+        /// Clears all messages from the current queue
+        /// </summary>
+        /// <returns></returns>
+	    public async Task ClearQueueAsync()
+	    {
+	        await cloudQueue.ClearAsync();
+	    }
+
+	    public int MessageCount()
+	    {
+	        return cloudQueue.ApproximateMessageCount ?? 0;
+	    }
 	}
 }

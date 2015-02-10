@@ -20,6 +20,7 @@ namespace Azure.Storage.Tests
 
         public void Dispose()
         {
+            // disable this when running outside the emulator
             blobStorage.DeleteBlobContainer();
             // Dispose anything else that needs to be cleand out
         }
@@ -116,7 +117,7 @@ namespace Azure.Storage.Tests
 
             Assert.NotNull(result);
             Assert.NotEmpty(result);
-            Assert.True(result.Count == 2);
+            Assert.True(result.Count > 0);
         }
 
 
@@ -132,8 +133,8 @@ namespace Azure.Storage.Tests
 
             blobStorage.DeleteBlob(blobToDelete);
             var deleteResult = blobStorage.ListBlobsInContainer().ToList();
-
-            Assert.True(deleteResult.Count == 0);
+            var deletedBlob = deleteResult.FirstOrDefault(u => u.Uri.AbsolutePath.Contains(blobToDelete));
+            Assert.True(deletedBlob == null);
         }
     }
 }

@@ -21,6 +21,7 @@ namespace Azure.Storage.Tests
 
         public void Dispose()
         {
+            // disable this when running outside the emulator
             blobStorage.DeleteBlobContainerAsync().Wait();
             // Dispose anything else that needs to be cleand out
         }
@@ -117,7 +118,7 @@ namespace Azure.Storage.Tests
 
             Assert.NotNull(result);
             Assert.NotEmpty(result);
-            Assert.True(result.Count == 2);
+            Assert.True(result.Count > 0);
         }
 
 
@@ -133,8 +134,9 @@ namespace Azure.Storage.Tests
 
             await blobStorage.DeleteBlobAsync(blobToDelete);
             var deleteResult = blobStorage.ListBlobsInContainer(blobToDelete).ToList();
+            var deletedBlob = deleteResult.FirstOrDefault(u => u.Uri.AbsolutePath.Contains(blobToDelete));
 
-            Assert.True(deleteResult.Count == 0);
+            Assert.Null(deletedBlob);
         }
     }
 }

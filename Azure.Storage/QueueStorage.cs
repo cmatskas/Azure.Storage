@@ -96,5 +96,31 @@ namespace Azure.Storage
 
 			cloudQueue.DeleteMessage(cloudQueueMessage);
 		}
+
+        /// <summary>
+        /// Deletes the current Queue
+        /// </summary>
+	    public void DeleteQueue()
+	    {
+	        cloudQueue.DeleteIfExists();
+	    }
+
+        /// <summary>
+        /// Clears all messages from the Queue
+        /// </summary>
+	    public void ClearQueue()
+	    {
+	        cloudQueue.Clear();
+	    }
+
+        /// <summary>
+        /// Gets an approximate message count
+        /// </summary>
+        /// <returns></returns>
+	    public int MessageCount()
+	    {
+            cloudQueue.FetchAttributes();
+	        return cloudQueue.ApproximateMessageCount ?? 0;
+	    }
 	}
 }

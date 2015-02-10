@@ -11,5 +11,8 @@ namespace Azure.Storage.Interfaces
         Task<CloudQueueMessage> DeQueueAsync();
         Task UpdateQueueMessageAsync(string content);
         Task DeleteMessageAsync(CloudQueueMessage cloudQueueMessage);
+        Task DeleteQueueAsync();
+        Task ClearQueueAsync();
+        int MessageCount();
     }
 }

@@ -51,6 +51,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlobStorageAsyncTests.cs" />
+    <Compile Include="QueueStorageAsyncTests.cs" />
+    <Compile Include="QueueStorageTests.cs" />
     <Compile Include="BlobStorageTests.cs" />
     <Compile Include="FileStorageAsyncTestsy.cs" />
     <Compile Include="FileStorageTests.cs" />

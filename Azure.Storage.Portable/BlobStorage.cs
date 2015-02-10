@@ -70,7 +70,7 @@ namespace Azure.Storage.Portable
 
             var canonicalizedResource = runsOnEmulator
                 ? String.Format("/{0}/{0}/{1}\n{2}", "devstoreaccount1", containerName, "restype:container")
-                : String.Format("/{0}\n{1}", containerName, "restype:container");
+                : String.Format("/{0}/{1}\n{2}", account, containerName, "restype:container");
             
             var stringToSign = String.Format("GET\n" +
                                              "\n" +
@@ -113,7 +113,7 @@ namespace Azure.Storage.Portable
                 StorageServiceVersion);
             var canonicalizedResource = runsOnEmulator
                 ? String.Format("/{0}/{0}/{1}\n{2}", "devstoreaccount1", containerName, "restype:container")
-                : String.Format("/{0}\n{1}", containerName, "restype:container");
+                : String.Format("/{0}/{1}\n{2}", account, containerName, "restype:container");
 
             var stringToSign = String.Format("PUT\n" +
                                              "\n" +
@@ -157,7 +157,7 @@ namespace Azure.Storage.Portable
             var canonicalizedResource = runsOnEmulator
                 ? String.Format("/{0}/{0}/{1}\n{2}\n{3}", "devstoreaccount1", containerName, "comp:acl",
                     "restype:container")
-                : String.Format("/{0}\n{1}\n{2}", containerName, "comp:acl", "restype:container");
+                : String.Format("/{0}/{1}\n{2}\n{3}", account, containerName, "comp:acl", "restype:container");
             var stringToSign = String.Format("PUT\n" +
                                              "\n" +
                                              "\n" +
@@ -208,7 +208,7 @@ namespace Azure.Storage.Portable
 
             var canonicalizedResource = runsOnEmulator
                 ? String.Format("/{0}/{0}/{1}", "devstoreaccount1", urlPath)
-                : String.Format("/{0}", urlPath);
+                : String.Format("/{0}/{1}", account, urlPath);
 
             var stringToSign = String.Format("{0}\n\n\n{1}\n\n\n\n\n\n\n\n\n{2}\n{3}",
                 "PUT",
@@ -262,7 +262,7 @@ namespace Azure.Storage.Portable
                 StorageServiceVersion);
             var canonicalizedResource = runsOnEmulator
                 ? String.Format("/{0}/{0}/{1}/{2}", "devstoreaccount1", containerName, blobName)
-                : String.Format("/{0}/{1}", containerName, blobName);
+                : String.Format("/{0}/{1}/{2}", account, containerName, blobName);
             var stringToSign = String.Format("GET\n" +
                                              "\n" +
                                              "\n" +
@@ -316,7 +316,7 @@ namespace Azure.Storage.Portable
                 StorageServiceVersion);
             var canonicalizedResource = runsOnEmulator 
             ? String.Format("/{0}/{0}/{1}\n{2}\n{3}", "devstoreaccount1", containerName, "comp:list", "restype:container")
-            : String.Format("/{0}\n{1}\n{2}", containerName, "comp:list", "restype:container");
+            : String.Format("/{0}/{1}\n{2}\n{3}", account, containerName, "comp:list", "restype:container");
 
             var stringToSign = String.Format("GET\n" +
                                              "\n" +
@@ -377,7 +377,7 @@ namespace Azure.Storage.Portable
                 StorageServiceVersion);
             var canonicalizedResource = runsOnEmulator
                 ? String.Format("/{0}/{0}/{1}\n{2}", "devstoreaccount1", containerName, "restype:container")
-                : String.Format("/{0}\n{1}", containerName, "restype:container");
+                : String.Format("/{0}/{1}\n{2}", account, containerName, "restype:container");
             var stringToSign = String.Format("DELETE\n" +
                                              "\n" +
                                              "\n" +
@@ -418,7 +418,7 @@ namespace Azure.Storage.Portable
                 StorageServiceVersion);
             var canonicalizedResource = runsOnEmulator
                 ? String.Format("/{0}/{0}/{1}/{2}", "devstoreaccount1", containerName, blobName)
-                : String.Format("/{0}/{1}", containerName, blobName);
+                : String.Format("/{0}/{1}/{2}", account, containerName, blobName);
             var stringToSign = String.Format("DELETE\n" +
                                              "\n" +
                                              "\n" +

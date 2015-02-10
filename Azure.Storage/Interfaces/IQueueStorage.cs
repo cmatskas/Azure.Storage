@@ -10,5 +10,8 @@ namespace Azure.Storage.Interfaces
         CloudQueueMessage DeQueue();
         void UpdateQueueMessage(string content);
         void DeleteMessage(CloudQueueMessage cloudQueueMessage);
+        void DeleteQueue();
+        void ClearQueue();
+        int MessageCount();
     }
 }
