@@ -1,9 +1,11 @@
 Azure.Storage
 =============
 
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cmatskas/Azure.Storage?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+**Speak to me:** [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cmatskas/Azure.Storage?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 **Build Status:** [![Build status](https://ci.appveyor.com/api/projects/status/6i7g6igga5ee8o3l)](https://ci.appveyor.com/project/cmatskas/azure)
+
+**NuGet:** [![NuGet](https://img.shields.io/nuget/v/azure.storage.svg)](https://www.nuget.org/packages/Azure.Storage/)
 
 Azure.Storage provides a wrapper around the native Azure Storage API and allows you to quickly and easily code against current Azure Storage solutions (blobs, queues, tables etc). The project will aim to target the latest Azure SDK and use best practices as advised by 
 Microsoft.
