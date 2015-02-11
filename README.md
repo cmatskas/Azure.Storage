@@ -5,8 +5,7 @@ Azure.Storage
 
 **Build Status:** [![Build status](https://ci.appveyor.com/api/projects/status/6i7g6igga5ee8o3l)](https://ci.appveyor.com/project/cmatskas/azure)
 
-Azure.Storage provides a wrapper around the native Azure Storage API and allows you to quickly and easily interact with the 
-current Azure Storage offerings. The project will aim to target the latest Azure SDK and use best practices as advised by 
+Azure.Storage provides a wrapper around the native Azure Storage API and allows you to quickly and easily code against current Azure Storage solutions (blobs, queues, tables etc). The project will aim to target the latest Azure SDK and use best practices as advised by 
 Microsoft.
 
 To get started, you will need to grab the latest version from Nuget
