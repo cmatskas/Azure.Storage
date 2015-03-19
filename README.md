@@ -7,24 +7,30 @@ Azure.Storage
 
 **NuGet:** [![NuGet](https://img.shields.io/nuget/v/azure.storage.svg)](https://www.nuget.org/packages/Azure.Storage/)
 
-Azure.Storage provides a wrapper around the native Azure Storage API and allows you to quickly and easily code against current Azure Storage solutions (blobs, queues, tables etc). The project will aim to target the latest Azure SDK and use best practices as advised by 
-Microsoft.
+###Introduciton
+Azure.Storage provides a wrapper around the native Azure Storage API and allows you to quickly and easily code against current Azure Storage solutions (blobs, queues, tables etc). The project will aim to target the latest Azure SDK and use best practices as advised by Microsoft.
 
-To get started, you will need to grab the latest version from Nuget
+To get started, you will need to grab the latest version from Nuget or, alternatively, you could download the source and build it locally. The second option gives you the ability to crack open the code and <del>have a laugh</del> check the underlying implementation
 
-You can still dowload the source code and run it locally if you wish to know how things work under the covers.
+Azure.Storage provide 4 basic classes, each responsible for managing a separate Azure storage type:
 
-Azure.Storage provide 4 basic classes, each responsible for a separate Azure storage type:
+- BlobStorage => for managing blob objects
+- QueueStorage => for managing queues
+- TableStorage => for managing table storage
+- FileStorage => for managing folders and files on Azure-attached drives
 
-- BlobStorage --> for managing blob objects
-- QueueStorage --> for managing queues
-- TableStorage --> for managing table storage
-- FileStorage --> for managing folders and files on Azure-attached drives
+I promise to add tutorials and walkthroughs soon, so apologize in advance for the luck of documentation.
 
-The library will also be released as a PCL to enable cross platform mobile application development. For xamarin developers, the
-project will also be released in the Xamarin components 
+###Portability
+Not everyone is developing for the web or the desktop. If you are creating a mobile application that requires access to the Azure Storage service, then there is a portable version of library (i.e. a PCL). There is no NuGet package yet, but I plan to release one as soon as possible. In the meantime you can grab the code and use it as see fit. 
 
-Please note that the unit tests are still being added so it's early days before and if you decide to use it you should now that some
-paths of the code have not been tested. 
+###Xamarin
+For xamarin developers, the project will also be released in the Xamarin Components Store.
 
-Let me know of your thoughts and if you have any questions.
+###Caveats
+Please note that the unit tests are still being added along with the concrete implementation of the code. It's still early days so if you decide to use it you should now that some paths of the code have not been tested and some part of the functionality is not implemented across both the PCL and full version.
+
+###Feedback
+This is a project to help developers interact with Azure Storage. There is nothing stopping you from using the official Azure SDK and this project was built around it, but if there is any way I can improve this library or have any problems, please let me know by raising an issue or emailing me directly.
+
+
