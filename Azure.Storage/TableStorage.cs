@@ -15,6 +15,8 @@ namespace Azure.Storage
 	{
 	    private readonly CloudTable cloudTable;
 
+	    private readonly string TableName;
+
 		/// <summary>
 		/// Creates a new TableStorage object
 		/// </summary>
@@ -34,8 +36,9 @@ namespace Azure.Storage
 		    
             var cloudTableClient = cloudStorageAccount.CreateCloudTableClient();
 		    cloudTableClient.DefaultRequestOptions = requestOptions;
-
-		    cloudTable = cloudTableClient.GetTableReference(tableName);
+		    
+            TableName = tableName;
+		    cloudTable = cloudTableClient.GetTableReference(TableName);
 		    cloudTable.CreateIfNotExists();
 		}
 
@@ -176,7 +179,15 @@ namespace Azure.Storage
 	        }
 		}
 
-		/// <summary>
+        /// <summary>
+        /// Delete the table for this particular TableStorage
+        /// </summary>
+	    public void DeleteTable()
+	    {
+            cloudTable.DeleteIfExists();
+        }
+
+	    /// <summary>
 		/// Gets an entity from the table
 		/// </summary>
 		/// <param name="partitionKey">

@@ -11,6 +11,7 @@ namespace Azure.Storage.Interfaces
         void DeleteEntitiesByPartitionKey(string partitionKey);
         void DeleteEntitiesByRowKey(string rowKey);
         void DeleteEntity(string partitionKey, string rowKey);
+        void DeleteTable();
         IEnumerable<T> GetEntitiesByPartitionKey(string partitionKey);
         IEnumerable<T> GetEntitiesByRowKey(string rowKey);
         T GetEntityByPartitionKeyAndRowKey(string partitionKey, string rowKey);
