@@ -7,6 +7,8 @@ Azure.Storage
 
 **NuGet:** [![NuGet](https://img.shields.io/nuget/v/azure.storage.svg)](https://www.nuget.org/packages/Azure.Storage/)
 
+**Browse through the code** http://sourcebrowser.io/Browse/cmatskas/Azure.Storage
+
 ###Introduction
 Azure.Storage provides a wrapper around the native Azure Storage API and allows you to quickly and easily code against current Azure Storage solutions (blobs, queues, tables etc). The project will aim to target the latest Azure SDK and use best practices as advised by Microsoft.
 
