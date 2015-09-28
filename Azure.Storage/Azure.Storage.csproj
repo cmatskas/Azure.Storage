@@ -56,6 +56,10 @@
       <HintPath>..\packages\WindowsAzure.Storage.5.0.2\lib\net40\Microsoft.WindowsAzure.Storage.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.WindowsAzure.Storage.DataMovement, Version=0.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Azure.Storage.DataMovement.0.1.0\lib\net45\Microsoft.WindowsAzure.Storage.DataMovement.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -74,10 +78,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncHelpers.cs" />
+    <Compile Include="BlobDataManager.cs" />
+    <Compile Include="BlobOptions.cs" />
     <Compile Include="BlobStorageAsync.cs" />
     <Compile Include="BlobStorage.cs" />
+    <Compile Include="DataManagerUtility.cs" />
     <Compile Include="FileStorageAsync.cs" />
     <Compile Include="FileStorage.cs" />
+    <Compile Include="Interfaces\IBlobDataManager.cs" />
     <Compile Include="Interfaces\IBlobStorageAsync.cs" />
     <Compile Include="Interfaces\IBlobStorage.cs" />
     <Compile Include="Interfaces\IFileStorageAsync.cs" />
@@ -86,6 +94,7 @@
     <Compile Include="Interfaces\IQueueStorage.cs" />
     <Compile Include="Interfaces\ITableStorageAsync.cs" />
     <Compile Include="Interfaces\ITableStorage.cs" />
+    <Compile Include="ProgressRecorder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueueStorageAsync.cs" />
     <Compile Include="QueueStorage.cs" />
