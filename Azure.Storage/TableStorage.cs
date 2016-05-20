@@ -8,7 +8,9 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Azure.Storage
 {
-	/// <summary>
+    using Azure.Storage.Extensions;
+
+    /// <summary>
 	/// Simple helper class for Windows Azure storage tables
 	/// </summary>
     public class TableStorage<T> : ITableStorage<T> where T : TableEntity, new()
@@ -101,24 +103,8 @@ namespace Azure.Storage
                         QueryComparisons.Equal,
 		                partitionKey));
 
-		    var results = cloudTable.ExecuteQuery(query);
-		    var batchOperation = new TableBatchOperation();
-		    var counter = 0;
-		    foreach (var entity in results)
-		    {
-		        batchOperation.Delete(entity);
-		        counter++;
-
-                //Batch operations are limited to 100 items
-                //when we reach 100, we commit and clear the operation
-                if (counter == 100)
-                {
-                    cloudTable.ExecuteBatch(batchOperation);
-                    batchOperation = new TableBatchOperation();
-                    counter = 0;
-                }
-		    }
-		}
+            DeleteFromQuery(query);
+        }
 
         /// <summary>
         /// Deletes an entities from the table with the specified partitionKey
@@ -139,26 +125,30 @@ namespace Azure.Storage
                         QueryComparisons.Equal,
                         rowKey));
 
+            DeleteFromQuery(query);
+        }
+
+        /// <summary>
+        /// Deletes results from query.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        private void DeleteFromQuery(TableQuery<T> query)
+        {
             var results = cloudTable.ExecuteQuery(query);
             var batchOperation = new TableBatchOperation();
-            var counter = 0;
-            foreach (var entity in results)
-            {
-                batchOperation.Delete(entity);
-                counter++;
 
-                //Batch operations are limited to 100 items
-                //when we reach 100, we commit and clear the operation
-                if (counter == 100)
+            foreach (var entity in results.Batch(100))
+            {
+                foreach (var e in entity)
                 {
-                    cloudTable.ExecuteBatch(batchOperation);
-                    batchOperation = new TableBatchOperation();
-                    counter = 0;
+                    batchOperation.Delete(e);
                 }
+                cloudTable.ExecuteBatch(batchOperation);
+                batchOperation = new TableBatchOperation();
             }
         }
 
-	    /// <summary>
+        /// <summary>
 	    /// Deletes an entity from the table
 	    /// </summary>
 	    /// <param name="partitionKey">The partitionKey of the entity</param>
