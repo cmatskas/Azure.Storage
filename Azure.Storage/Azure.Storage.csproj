@@ -83,6 +83,7 @@
     <Compile Include="BlobStorageAsync.cs" />
     <Compile Include="BlobStorage.cs" />
     <Compile Include="DataManagerUtility.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="FileStorageAsync.cs" />
     <Compile Include="FileStorage.cs" />
     <Compile Include="Interfaces\IBlobDataManager.cs" />

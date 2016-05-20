@@ -9,7 +9,9 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Azure.Storage
 {
-	/// <summary>
+    using Azure.Storage.Extensions;
+
+    /// <summary>
 	/// Simple helper class for Windows Azure storage tables
 	/// </summary>
     public class TableStorageAsync<T> : ITableStorageAsync<T> where T : TableEntity, new()
@@ -99,24 +101,8 @@ namespace Azure.Storage
                         QueryComparisons.Equal,
 		                partitionKey));
 
-		    var results = await cloudTable.ExecuteQueryAsync(query);
-		    var batchOperation = new TableBatchOperation();
-		    var counter = 0;
-		    foreach (var entity in results)
-		    {
-		        batchOperation.Delete(entity);
-		        counter++;
-
-                //Batch operations are limited to 100 items
-                //when we reach 100, we commit and clear the operation
-                if (counter == 100)
-                {
-                    await cloudTable.ExecuteBatchAsync(batchOperation);
-                    batchOperation = new TableBatchOperation();
-                    counter = 0;
-                }
-		    }
-		}
+            DeleteFromQueryAsync(query);
+        }
 
         /// <summary>
         /// Deletes an entities from the table with the specified partitionKey
@@ -137,31 +123,35 @@ namespace Azure.Storage
                         QueryComparisons.Equal,
                         rowKey));
 
+            DeleteFromQueryAsync(query);
+        }
+
+        /// <summary>
+        /// Deletes results from query.
+        /// </summary>
+        /// <param name="query">The query.</param>
+        private async void DeleteFromQueryAsync(TableQuery<T> query)
+        {
             var results = await cloudTable.ExecuteQueryAsync(query);
             var batchOperation = new TableBatchOperation();
-            var counter = 0;
-            foreach (var entity in results)
-            {
-                batchOperation.Delete(entity);
-                counter++;
 
-                //Batch operations are limited to 100 items
-                //when we reach 100, we commit and clear the operation
-                if (counter == 100)
+            foreach (var entity in results.Batch(100))
+            {
+                foreach (var e in entity)
                 {
-                    await cloudTable.ExecuteBatchAsync(batchOperation);
-                    batchOperation = new TableBatchOperation();
-                    counter = 0;
+                    batchOperation.Delete(e);
                 }
+                cloudTable.ExecuteBatchAsync(batchOperation);
+                batchOperation = new TableBatchOperation();
             }
         }
 
-	    /// <summary>
-	    /// Deletes an entity from the table
-	    /// </summary>
-	    /// <param name="partitionKey">The partitionKey of the entity</param>
-	    /// <param name="rowKey">The row key of the entity to be deleted</param>
-	    public async Task DeleteEntityAsync(string partitionKey, string rowKey)
+        /// <summary>
+        /// Deletes an entity from the table
+        /// </summary>
+        /// <param name="partitionKey">The partitionKey of the entity</param>
+        /// <param name="rowKey">The row key of the entity to be deleted</param>
+        public async Task DeleteEntityAsync(string partitionKey, string rowKey)
 		{
             Validate.TablePropertyValue(rowKey, "rowKey");
             Validate.TablePropertyValue(partitionKey, "partitionKey");
