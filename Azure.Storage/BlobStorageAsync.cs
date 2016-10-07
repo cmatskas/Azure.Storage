@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -108,8 +109,7 @@ namespace Azure.Storage
             Validate.String(filePath, "contentType");
 
             var cloudBlockBlob = cloudBlobContainer.GetBlockBlobReference(blobId);
-            const FileMode fileMode = FileMode.OpenOrCreate;
-            await cloudBlockBlob.UploadFromFileAsync(filePath, fileMode);
+            await cloudBlockBlob.UploadFromFileAsync(filePath);
 
             return cloudBlockBlob.Uri.ToString();
 	    }
@@ -125,6 +125,13 @@ namespace Azure.Storage
 
 			return cloudBlobContainer.GetBlockBlobReference(blobId);
 		}
+
+        public CloudAppendBlob GetAppendBlockBlobReference(string blobId)
+        {
+            Validate.BlobName(blobId, "blobId");
+
+            return cloudBlobContainer.GetAppendBlobReference(blobId);
+        }
 
         /// <summary>
         /// Returns as stream with the contents of a block blob
@@ -186,5 +193,20 @@ namespace Azure.Storage
             var blob = cloudBlobContainer.GetBlockBlobReference(blobId);
             await blob.DeleteIfExistsAsync();
         }
-	}
+
+        /// <summary>
+        /// Adds data to the end of an Append blob. Should be used within a single writer
+        /// as the code is not optimised for concurrent writers
+        /// </summary>
+        /// <param name="blobId"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public async Task<string> AddDataToAppendBlockBlob(string blobId, string data)
+        {
+            var appendBlob = cloudBlobContainer.GetAppendBlobReference(blobId);
+            await appendBlob.AppendTextAsync(data);
+
+            return appendBlob.Uri.ToString();
+        }
+    }
 }

@@ -77,6 +77,17 @@ namespace Azure.Storage.Tests
         }
 
         [Fact]
+        public void GetAppendBlobReferenceSucceeds()
+        {
+            const string stringBlob = "appendstringblob";
+            blobStorage.AddDataToAppendBlockBlob(stringBlob, "hello world");
+
+            var result = blobStorage.GetAppendBlockBlobReference(stringBlob);
+
+            Assert.NotNull(result);
+        }
+
+        [Fact]
         public void GetBlobContentsAsStreamSucceeds()
         {
             const string stringBlob = "streamblob";
@@ -135,6 +146,21 @@ namespace Azure.Storage.Tests
             var deleteResult = blobStorage.ListBlobsInContainer().ToList();
             var deletedBlob = deleteResult.FirstOrDefault(u => u.Uri.AbsolutePath.Contains(blobToDelete));
             Assert.True(deletedBlob == null);
+        }
+
+        [Fact(Skip = "Works only against live storage account only")]
+        public void AddToAppendBlobShouldSucceed()
+        {
+            const string blobToAppend = "appendblob";
+            const string content = "Hello from append blob";
+            const string contentToAppend = "More text here";
+
+            blobStorage.AddDataToAppendBlockBlob(blobToAppend, content);
+
+            var result = blobStorage.AddDataToAppendBlockBlob(blobToAppend, contentToAppend);
+            Assert.True(result != null);
+            
+            
         }
     }
 }

@@ -6,14 +6,14 @@ namespace Azure.Storage
     /// <summary>
     /// A helper class to record progress reported by data movement library.
     /// </summary>
-    public class ProgressRecorder : IProgress<TransferProgress>
+    public class ProgressRecorder : IProgress<TransferStatus>
     {
         public long LatestBytesTransferred { get; private set; }
         public long LatestNumberOfFilesTransferred { get; private set; }
         public long LatestNumberOfFilesSkipped { get; private set; }
         public long LatestNumberOfFilesFailed { get; private set; }
 
-        public void Report(TransferProgress progress)
+        public void Report(TransferStatus progress)
         {
             LatestBytesTransferred = progress.BytesTransferred;
             LatestNumberOfFilesTransferred = progress.NumberOfFilesTransferred;

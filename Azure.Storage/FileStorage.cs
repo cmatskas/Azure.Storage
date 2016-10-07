@@ -109,9 +109,7 @@ namespace Azure.Storage
                 file.Create(long.MaxValue);
             }
 
-            const FileMode fileMode = FileMode.OpenOrCreate;
-
-            file.UploadFromFile(sourceFilePath, fileMode);
+            file.UploadFromFile(sourceFilePath);
         }
 
         public void DeleteFile(string directoryName, string fileName)
